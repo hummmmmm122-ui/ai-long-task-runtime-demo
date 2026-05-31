@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import './styles.css';
 
 type NodeStatus = 'done' | 'running' | 'waiting' | 'review' | 'branched';
+type DemoStep = 'observe' | 'interrupt' | 'branch' | 'handoff';
 
 interface WorkflowNode {
   id: string;
@@ -14,6 +15,15 @@ interface WorkflowNode {
   expected: string[];
   risk: string;
 }
+
+interface Cue {
+  step: DemoStep;
+  title: string;
+  body: string;
+}
+
+const initialStage = 2;
+const initialSelectedId = 'draft';
 
 const baseNodes: WorkflowNode[] = [
   {
@@ -92,32 +102,101 @@ const sideMessages = [
   }
 ];
 
+const demoCues: Record<DemoStep, Cue> = {
+  observe: {
+    step: 'observe',
+    title: '01 观察等待',
+    body: '先展示 AI 不是静默加载，而是在持续解释当前节点、已有成果和下一步产物。'
+  },
+  interrupt: {
+    step: 'interrupt',
+    title: '02 中途插话',
+    body: '用户偏好已经并入当前方案，主任务继续运行，不需要等最终回答才反馈。'
+  },
+  branch: {
+    step: 'branch',
+    title: '03 保留并分支',
+    body: '当前版本 V1 被保留，新意见进入 V2 分支，用户不用担心打断会浪费已有结果。'
+  },
+  handoff: {
+    step: 'handoff',
+    title: '04 完成后续',
+    body: '任务收束后直接给出演示脚本、Pitch 版和下一步会话入口。'
+  }
+};
+
 function App() {
-  const [selectedId, setSelectedId] = useState('draft');
-  const [stage, setStage] = useState(2);
+  const [selectedId, setSelectedId] = useState(initialSelectedId);
+  const [stage, setStage] = useState(initialStage);
   const [branchOpened, setBranchOpened] = useState(false);
   const [noteAccepted, setNoteAccepted] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
+  const [cueStep, setCueStep] = useState<DemoStep>('observe');
 
   const nodes = useMemo<WorkflowNode[]>(
     () =>
       baseNodes.map((node, index) => {
-        if (branchOpened && node.id === 'branch') return { ...node, status: 'branched' as const };
-        if (noteAccepted && node.id === 'draft') return { ...node, status: 'review' as const, kicker: '已采纳偏好' };
-        if (index < stage) return { ...node, status: 'done' as const };
-        if (index === stage) return { ...node, status: 'running' as const };
-        return { ...node, status: node.status === 'review' ? 'review' : ('waiting' as const) };
+        let status: NodeStatus = 'waiting';
+
+        if (index < stage) {
+          status = 'done';
+        } else if (index === stage) {
+          status = 'running';
+        } else if (node.status === 'review') {
+          status = 'review';
+        }
+
+        if (noteAccepted && node.id === 'draft' && index >= stage) {
+          status = 'review';
+        }
+
+        if (branchOpened && node.id === 'branch' && index >= stage) {
+          status = 'branched';
+        }
+
+        return {
+          ...node,
+          status,
+          kicker: noteAccepted && node.id === 'draft' ? '已采纳偏好' : node.kicker
+        };
       }),
     [branchOpened, noteAccepted, stage]
   );
+
   const selectedNode = nodes.find((node) => node.id === selectedId) ?? nodes[stage] ?? nodes[0];
   const completed = nodes.filter((node) => node.status === 'done').length;
   const progress = Math.min(((stage + 0.45) / nodes.length) * 100, 100);
+  const activeCue = demoCues[cueStep];
+  const isComplete = stage >= nodes.length - 1;
+
+  const resetDemo = () => {
+    setStage(initialStage);
+    setSelectedId(initialSelectedId);
+    setBranchOpened(false);
+    setNoteAccepted(false);
+    setFullscreen(false);
+    setCueStep('observe');
+  };
+
+  const acceptNote = () => {
+    setNoteAccepted(true);
+    setCueStep('interrupt');
+    setSelectedId('draft');
+  };
+
+  const openBranch = () => {
+    setBranchOpened(true);
+    setCueStep('branch');
+    setSelectedId('branch');
+  };
 
   const advance = () => {
     setStage((current) => {
-      const next = Math.min(current + 1, nodes.length - 1);
-      setSelectedId(nodes[next]?.id ?? selectedId);
+      const next = Math.min(current + 1, baseNodes.length - 1);
+      setSelectedId(baseNodes[next]?.id ?? selectedId);
+      if (next >= baseNodes.length - 1) {
+        setCueStep('handoff');
+      }
       return next;
     });
   };
@@ -167,10 +246,15 @@ function App() {
                 <p>{selectedNode.detail}</p>
               </div>
               <div className="clock-card">
-                <span>预计剩余</span>
-                <strong>{selectedNode.minutes}</strong>
+                <span>{isComplete ? '交付状态' : '预计剩余'}</span>
+                <strong>{isComplete ? 'READY' : selectedNode.minutes}</strong>
               </div>
             </div>
+
+            <section className={`director-cue director-cue-${activeCue.step}`} aria-label="演示步骤提示">
+              <span>{activeCue.title}</span>
+              <p>{activeCue.body}</p>
+            </section>
 
             <div className="scene-grid">
               <section className="robot-scene" aria-label="二维运行态">
@@ -186,9 +270,9 @@ function App() {
                 <div className="agent agent-small one"><i /><b /></div>
                 <div className="agent agent-small two"><i /><b /></div>
                 <div className="thought one">正在权衡用户打断成本...</div>
-                <div className="thought two">已生成可确认节点</div>
+                <div className="thought two">{noteAccepted ? '偏好已并入当前方案' : '已生成可确认节点'}</div>
                 <div className="thought three">右侧分支继续收集偏好</div>
-                {branchOpened && <div className="second-floor">二楼分支任务已开启</div>}
+                {branchOpened && <div className="second-floor">V2 分支任务已开启</div>}
               </section>
 
               <section className="node-detail">
@@ -220,11 +304,11 @@ function App() {
               </article>
               <article>
                 <span>分支任务</span>
-                <strong>{branchOpened ? '二楼运行' : '未开启'}</strong>
+                <strong>{branchOpened ? 'V2 运行' : '未开启'}</strong>
               </article>
               <article>
                 <span>演示状态</span>
-                <strong>{stage >= 4 ? '可交付' : '进行中'}</strong>
+                <strong>{isComplete ? '可交付' : '进行中'}</strong>
               </article>
             </section>
           </section>
@@ -232,7 +316,7 @@ function App() {
           <aside className="node-list" aria-label="实时节点图">
             <header>
               <span>实时节点图</span>
-              <button onClick={() => setStage(0)}>重置</button>
+              <button onClick={resetDemo}>重置</button>
             </header>
             {nodes.map((node, index) => (
               <button
@@ -264,13 +348,25 @@ function App() {
                   <p>{message.text}</p>
                 </article>
               ))}
+              {noteAccepted && (
+                <article className="message ai message-feedback">
+                  <span>AI</span>
+                  <p>偏好已并入“生成方案”节点：第二节点不再阻塞确认，主任务继续运行。</p>
+                </article>
+              )}
+              {branchOpened && (
+                <article className="message ai message-feedback">
+                  <span>AI</span>
+                  <p>已保留当前版本 V1，并开启 V2 分支尝试用户的新意见。</p>
+                </article>
+              )}
             </div>
             <section className="branch-card">
               <span>用户修改意见</span>
               <p>“第二节点不要再次阻塞确认，用户可以稍后查看；如果已经确认就自动接着跑。”</p>
               <div className="branch-actions">
-                <button onClick={() => setNoteAccepted(true)}>采纳到当前节点</button>
-                <button onClick={() => setBranchOpened(true)}>保留并开分支</button>
+                <button onClick={acceptNote}>采纳到当前节点</button>
+                <button onClick={openBranch}>保留并开分支</button>
               </div>
             </section>
             <section className="next-actions">

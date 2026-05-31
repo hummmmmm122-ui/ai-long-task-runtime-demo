@@ -236,7 +236,7 @@ button {
 
 .main-panel {
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
   padding: 24px;
 }
 
@@ -286,6 +286,49 @@ button {
   color: var(--teal);
   font-family: "Cascadia Mono", Consolas, monospace;
   font-size: 26px;
+}
+
+.director-cue {
+  display: grid;
+  grid-template-columns: 138px minmax(0, 1fr);
+  gap: 16px;
+  align-items: center;
+  margin-top: 14px;
+  border: 1px solid rgba(79, 224, 202, 0.22);
+  border-radius: 8px;
+  padding: 11px 13px;
+  background: linear-gradient(90deg, rgba(79, 224, 202, 0.1), rgba(79, 224, 202, 0.03));
+}
+
+.director-cue span {
+  color: var(--teal);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.director-cue p {
+  margin: 0;
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.director-cue-branch {
+  border-color: rgba(149, 210, 123, 0.35);
+  background: linear-gradient(90deg, rgba(149, 210, 123, 0.12), rgba(149, 210, 123, 0.03));
+}
+
+.director-cue-branch span {
+  color: var(--green);
+}
+
+.director-cue-handoff {
+  border-color: rgba(255, 209, 102, 0.38);
+  background: linear-gradient(90deg, rgba(255, 209, 102, 0.12), rgba(255, 209, 102, 0.03));
+}
+
+.director-cue-handoff span {
+  color: var(--amber);
 }
 
 .scene-grid {
@@ -449,7 +492,7 @@ button {
 }
 
 .node-detail {
-  overflow: hidden;
+  overflow: auto;
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 16px;
@@ -640,6 +683,11 @@ button {
 
 .message.user {
   background: rgba(255, 209, 102, 0.08);
+}
+
+.message-feedback {
+  border-color: rgba(79, 224, 202, 0.32);
+  background: rgba(79, 224, 202, 0.08);
 }
 
 .message span {
