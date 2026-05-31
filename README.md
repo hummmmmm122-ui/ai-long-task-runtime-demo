@@ -36,6 +36,7 @@ PRD 里最关键的痛点不是“AI 慢”，而是“AI 慢的时候用户失�
 
 演示辅助材料：
 
+- [最终交付说明](docs/final-delivery.md)：集中查看在线地址、仓库地址、验证状态和范围边界。
 - [演示导览图](docs/demo-map.md)：用于开场前快速说明项目主线和核心流程。
 - [2 分钟口播脚本](docs/demo-script.md)：用于录屏时按时间顺序讲解页面。
 - [录屏前检查清单](docs/demo-checklist.md)：用于正式录制前确认线上地址、点击路径和备用方案。
@@ -78,6 +79,7 @@ PRD 里最关键的痛点不是“AI 慢”，而是“AI 慢的时候用户失�
 - `src/App.tsx`：Demo 状态、节点数据和页面结构
 - `src/styles.css`：工作台视觉、响应式布局和运行态动画
 - `src/main.tsx`：React 入口
+- `docs/final-delivery.md`：最终交付说明
 - `docs/demo-map.md`：演示导览图和观众理解路径
 - `docs/demo-script.md`：2 分钟演示口播脚本
 - `docs/demo-checklist.md`：录屏前检查清单
