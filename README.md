@@ -4,6 +4,14 @@
 
 Demo 不追求完整后端能力，重点是把“等待过程重构”这件事用一个清晰的工作台界面演出来。
 
+在线演示地址：
+
+```text
+https://hummmmmm122-ui.github.io/ai-long-task-runtime-demo/
+```
+
+如果页面暂时还打不开，请到仓库的 `Actions` 页面确认 `Deploy demo to GitHub Pages` 是否已经运行完成，并在仓库 `Settings -> Pages` 中选择 GitHub Actions 作为发布来源。
+
 ## 项目思考
 
 PRD 里最关键的痛点不是“AI 慢”，而是“AI 慢的时候用户失去参与感和控制感”。传统聊天界面在用户发出任务后，通常只剩下一个加载态。用户不知道 AI 是在理解目标、检索资料、生成方案，还是已经卡住；也不知道现在打断会不会浪费已有结果。
@@ -92,6 +100,10 @@ http://localhost:5173/
 ```bash
 npm run build
 ```
+
+## GitHub Pages 部署
+
+项目已内置 `.github/workflows/pages.yml`。推送到 `main` 后，GitHub Actions 会自动构建 `dist` 并部署到 GitHub Pages。
 
 ## 设计取舍
 
