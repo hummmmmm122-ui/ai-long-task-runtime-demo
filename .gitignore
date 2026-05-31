@@ -1,0 +1,24 @@
+node_modules/
+dist/
+.vite/
+*.tsbuildinfo
+
+# Local logs and generated media
+*.log
+*.mp4
+*.zip
+demo-*/
+operation-demo-assets/
+submit-package/
+交付包_项目源码与演示/
+
+# One-off recording/render scripts from earlier experiments
+finish-*.py
+make-*.py
+make-*.js
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
