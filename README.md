@@ -38,6 +38,7 @@ PRD 里最关键的痛点不是“AI 慢”，而是“AI 慢的时候用户失�
 
 - [演示导览图](docs/demo-map.md)：用于开场前快速说明项目主线和核心流程。
 - [2 分钟口播脚本](docs/demo-script.md)：用于录屏时按时间顺序讲解页面。
+- [录屏前检查清单](docs/demo-checklist.md)：用于正式录制前确认线上地址、点击路径和备用方案。
 
 ## 功能范围
 
@@ -79,6 +80,7 @@ PRD 里最关键的痛点不是“AI 慢”，而是“AI 慢的时候用户失�
 - `src/main.tsx`：React 入口
 - `docs/demo-map.md`：演示导览图和观众理解路径
 - `docs/demo-script.md`：2 分钟演示口播脚本
+- `docs/demo-checklist.md`：录屏前检查清单
 
 ## 本地运行
 
