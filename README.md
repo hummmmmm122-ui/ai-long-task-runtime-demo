@@ -1,13 +1,20 @@
 # AI 长任务等待态 Demo
 
+[![Deploy demo to GitHub Pages](https://github.com/hummmmmm122-ui/ai-long-task-runtime-demo/actions/workflows/pages.yml/badge.svg)](https://github.com/hummmmmm122-ui/ai-long-task-runtime-demo/actions/workflows/pages.yml)
+
 这是一个用于视频演示的轻量前端 Demo，主题来自 PRD 中的核心问题：当 AI 执行长耗时任务时，用户不能只看到一个安静的等待状态，而应该持续知道 AI 在做什么、已经产出了什么、接下来会产出什么，以及自己是否可以中途介入。
 
 Demo 不追求完整后端能力，重点是把“等待过程重构”这件事用一个清晰的工作台界面演出来。
 
-在线演示地址：
+## 在线演示
 
-```text
-https://hummmmmm122-ui.github.io/ai-long-task-runtime-demo/
+[打开在线 Demo](https://hummmmmm122-ui.github.io/ai-long-task-runtime-demo/)
+
+本地快速启动：
+
+```bash
+npm install
+npm run dev
 ```
 
 如果页面暂时还打不开，请到仓库的 `Actions` 页面确认 `Deploy demo to GitHub Pages` 是否已经运行完成，并在仓库 `Settings -> Pages` 中选择 GitHub Actions 作为发布来源。
