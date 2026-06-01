@@ -10,7 +10,7 @@ Demo 不追求完整后端能力，重点是把“等待过程重构”为可观
 
 [打开在线版本](https://hummmmmm122-ui.github.io/ai-long-task-runtime-demo/)
 
-![AI 长任务等待态 Demo 预览](docs/preview.png)
+![AI 长任务运行台产品原型预览](docs/preview.png)
 
 预览图展示的是资源库视图：用户可以查看运行过程中沉淀的 artifact、checkpoint 和外部任务资源，并从资源详情跳转到来源队列任务。
 
