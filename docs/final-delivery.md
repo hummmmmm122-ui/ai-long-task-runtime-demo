@@ -64,6 +64,12 @@ npm run verify
 
 GitHub Pages 工作流会在推送到 `main` 后执行同一个验证命令，通过测试和构建后再部署页面。
 
+## 部署状态检查
+
+- 最新本地验证命令：`npm run verify`
+- 最新 Pages 工作流：`Deploy demo to GitHub Pages`
+- 线上页面健康检查：访问 `https://hummmmmm122-ui.github.io/ai-long-task-runtime-demo/` 应返回 200，并加载 `Workflow Workbench` 主界面。
+
 ## 后续扩展建议
 
 - 接入真实任务事件流，把当前模拟节点替换成真实执行状态。
