@@ -92,9 +92,10 @@ describe('App runtime interactions', () => {
     expect(container.textContent).toContain('二楼分支');
     expect(container.textContent).toContain('第一节点确认');
     expect(container.textContent).toContain('第二节点处理方式');
-    expect(container.textContent).toContain('运行细节');
-    expect(container.textContent).toContain('展开');
-    expect(container.textContent).not.toContain('当前执行链路');
+    expect(container.textContent).toContain('Step 1');
+    expect(container.textContent).toContain('Step 2');
+    expect(container.textContent).toContain('Step 3');
+    expect(container.textContent).toContain('当前执行链路');
     expect(container.textContent).toContain('继续执行');
     for (const copy of presentationOnlyCopy) {
       expect(container.textContent).not.toContain(copy);
@@ -104,7 +105,6 @@ describe('App runtime interactions', () => {
   it('supports node review, branch comparison, and stateful handoff summary', () => {
     renderApp();
 
-    clickButton('运行细节');
     clickButton('标记需复核');
     expect(container.textContent).toContain('需人工复核');
 
@@ -153,8 +153,6 @@ describe('App runtime interactions', () => {
 
     clickButton('查看AI 长任务运行台产品原型');
     clickButton('进入运行台');
-    expect(container.textContent).toContain('运行细节');
-    clickButton('运行细节');
     expect(container.textContent).toContain('当前执行链路');
     expect(container.textContent).toContain('分支式主动聊天');
   });

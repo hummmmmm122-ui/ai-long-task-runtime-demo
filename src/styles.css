@@ -225,6 +225,12 @@ button {
   font-weight: 800;
 }
 
+.execute-button.is-secondary {
+  color: var(--text);
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+}
+
 .top-command-panel {
   position: absolute;
   z-index: 8;
@@ -2004,6 +2010,11 @@ button {
   border-radius: 8px;
   padding: 10px;
   background: var(--panel-2);
+}
+
+.branch-card.passive-card {
+  opacity: 0.88;
+  background: rgba(23, 27, 24, 0.82);
 }
 
 .quick-prompts {

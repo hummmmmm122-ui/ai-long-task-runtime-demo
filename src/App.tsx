@@ -42,7 +42,7 @@ type TemplatePreset = {
 };
 
 type TopPanel = 'search' | 'notifications' | null;
-type CollapsiblePanel = 'guide' | 'details' | 'nodes' | 'quickPrompts' | 'history' | 'handoff';
+type CollapsiblePanel = 'details' | 'nodes' | 'quickPrompts' | 'history' | 'handoff';
 
 function App() {
   const [workspaceView, setWorkspaceView] = useState<WorkspaceView>('task');
@@ -66,7 +66,6 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedQueueId, setSelectedQueueId] = useState('TASK-A94B');
   const [openPanels, setOpenPanels] = useState<Record<CollapsiblePanel, boolean>>({
-    guide: false,
     details: false,
     nodes: false,
     quickPrompts: false,
@@ -375,7 +374,7 @@ function App() {
             >
               ◌
             </button>
-            <button className="execute-button" onClick={advance}>
+            <button className={`execute-button ${noteAccepted ? '' : 'is-secondary'}`} onClick={advance}>
               ▶ {isComplete ? '准备交付' : '继续执行'}
             </button>
           </div>
@@ -513,58 +512,26 @@ function App() {
               </div>
             </section>
 
-            <section className="compact-section">
-              <button className="collapse-toggle" type="button" onClick={() => togglePanel('guide')}>
-                <span>操作路径</span>
-                <strong>{openPanels.guide ? '收起' : '展开'}</strong>
-              </button>
-              {openPanels.guide && (
-                <div className="operation-guide" aria-label="操作路径">
-                  <article className="guide-card is-active">
-                    <span>1</span>
-                    <strong>先提修改意见</strong>
-                    <p>在右侧分支对话里输入约束，或点一个快捷意见。</p>
-                  </article>
-                  <article className={pendingIntervention ? 'guide-card is-active' : 'guide-card'}>
-                    <span>2</span>
-                    <strong>再选择处理方式</strong>
-                    <p>{runtimeConfig.autoBranch ? '写入当前节点、保留并开分支，或只记录为约束。' : '写入当前节点，或先只记录为约束。'}</p>
-                  </article>
-                  <article className={branchOpened ? 'guide-card is-active' : 'guide-card'}>
-                    <span>3</span>
-                    <strong>最后看结果差异</strong>
-                    <p>节点图、事件流和 V1/V2 checkpoint 会同步变化。</p>
-                  </article>
-                </div>
-              )}
+            <section className="storyline-summary" aria-label="单一剧情流">
+              <article className="story-step is-current">
+                <span>Step 1</span>
+                <strong>{noteAccepted ? '第一节点已确认' : '先确认第一节点'}</strong>
+                <p>先只确认第一节点，不把整份节点图一次性压给用户。</p>
+              </article>
+              <article className={`story-step ${secondNodeReviewMode !== 'pending' ? 'is-current' : ''}`}>
+                <span>Step 2</span>
+                <strong>
+                  {secondNodeReviewMode === 'pending' ? '决定第二节点怎么确认' : secondNodeReviewMode === 'later' ? '第二节点稍后暂停确认' : secondNodeReviewMode === 'parallel' ? '第二节点正在并行确认' : '第二节点已确认'}
+                </strong>
+                <p>根据第一节点耗时，决定是并行确认第二节点，还是到点暂停确认。</p>
+              </article>
+              <article className={`story-step ${revisionMode !== 'none' || branchOpened ? 'is-current' : ''}`}>
+                <span>Step 3</span>
+                <strong>{revisionMode === 'redo' ? '已回退重做' : branchOpened ? '已保留 V1 并开启 V2' : '修改已完成节点时做选择'}</strong>
+                <p>这是 PRD 最关键的瞬间：回退重做，还是保留当前版本另起新任务。</p>
+              </article>
             </section>
 
-            <section className="compact-section">
-              <button className="collapse-toggle" type="button" onClick={() => togglePanel('details')}>
-                <span>运行细节</span>
-                <strong>{openPanels.details ? '收起' : '展开'}</strong>
-              </button>
-              {!openPanels.details && (
-                <section className="collapsed-snapshot" aria-label="当前产物快照">
-                  <article>
-                    <span>当前产物</span>
-                    <strong>{currentArtifact.title}</strong>
-                    <p>{currentArtifact.summary}</p>
-                  </article>
-                  <article>
-                    <span>节点决策</span>
-                    <strong>{decisionLabel[nodeDecision]}</strong>
-                    <p>
-                      {pendingIntervention
-                        ? '有一条修改意见等待处理。'
-                        : runtimeConfig.autoBranch
-                          ? '可以写入当前节点，也可以保留当前版本后另起一路。'
-                          : '当前策略会直接写入主任务，不自动开分支。'}
-                    </p>
-                  </article>
-                </section>
-              )}
-              {openPanels.details && (
             <div className="scene-grid">
               <section className="runtime-panel" aria-label="运行事件流">
                 <header>
@@ -671,8 +638,6 @@ function App() {
                 )}
               </section>
             </div>
-              )}
-            </section>
 
             <section className="artifact-strip" aria-label="产物预览">
               <article>
@@ -770,7 +735,7 @@ function App() {
                 </button>
               ))}
             </section>
-            <section className="branch-card">
+            <section className="branch-card passive-card">
               <span>{pendingIntervention ? '待处理的修改意见' : '默认修改意见'}</span>
               <p>“{pendingIntervention || '第二节点不要再次阻塞确认，用户可以稍后查看；如果已经确认就自动接着跑。'}”</p>
               <div className="branch-actions">
