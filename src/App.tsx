@@ -18,10 +18,14 @@ import {
   type HandoffAction,
   type NodeDecision,
   type NodeStatus,
+  type QueueItem,
   type RuntimeStep
 } from './runtimeModel';
 
+type WorkspaceView = 'task' | 'queue';
+
 function App() {
+  const [workspaceView, setWorkspaceView] = useState<WorkspaceView>('task');
   const [selectedId, setSelectedId] = useState(initialSelectedId);
   const [stage, setStage] = useState(initialStage);
   const [branchOpened, setBranchOpened] = useState(false);
@@ -116,8 +120,22 @@ function App() {
     <main className={`workbench ${fullscreen ? 'is-focus' : ''}`}>
       <aside className="rail" aria-label="主导航">
         <div className="brand-mark">W</div>
-        <button className="rail-item active" title="任务中心" aria-label="任务中心">▣</button>
-        <button className="rail-item" title="运行队列" aria-label="运行队列">◴</button>
+        <button
+          className={`rail-item ${workspaceView === 'task' ? 'active' : ''}`}
+          title="任务中心"
+          aria-label="任务中心"
+          onClick={() => setWorkspaceView('task')}
+        >
+          ▣
+        </button>
+        <button
+          className={`rail-item ${workspaceView === 'queue' ? 'active' : ''}`}
+          title="运行队列"
+          aria-label="运行队列"
+          onClick={() => setWorkspaceView('queue')}
+        >
+          ◴
+        </button>
         <button className="rail-item" title="模板" aria-label="模板">▤</button>
         <button className="rail-item" title="资源" aria-label="资源">◇</button>
         <button className="rail-item bottom" title="设置" aria-label="设置">⚙</button>
@@ -148,6 +166,15 @@ function App() {
           </div>
         </header>
 
+        {workspaceView === 'queue' ? (
+          <QueueView
+            currentNodeTitle={selectedNode.title}
+            progress={progress}
+            nodeDecision={nodeDecision}
+            branchOpened={branchOpened}
+            onOpenTask={() => setWorkspaceView('task')}
+          />
+        ) : (
         <section className="stage">
           <section className="main-panel">
             <div className="status-header">
@@ -395,8 +422,87 @@ function App() {
             </section>
           </aside>
         </section>
+        )}
       </section>
     </main>
+  );
+}
+
+function QueueView({
+  currentNodeTitle,
+  progress,
+  nodeDecision,
+  branchOpened,
+  onOpenTask
+}: {
+  currentNodeTitle: string;
+  progress: number;
+  nodeDecision: NodeDecision;
+  branchOpened: boolean;
+  onOpenTask: () => void;
+}) {
+  const queueItems: QueueItem[] = [
+    {
+      id: 'TASK-A94B',
+      title: 'AI 长任务运行台产品原型',
+      status: branchOpened ? '分支运行中' : '运行中',
+      node: currentNodeTitle,
+      progress: Math.round(progress),
+      attention: nodeDecision === 'needs-review' ? '需要人工复核' : '等待确认策略',
+      updatedAt: '刚刚'
+    },
+    {
+      id: 'TASK-B18C',
+      title: '客服知识库重组',
+      status: '等待介入',
+      node: '校验引用',
+      progress: 62,
+      attention: '缺少产品边界说明',
+      updatedAt: '4 分钟前'
+    },
+    {
+      id: 'TASK-C77D',
+      title: '竞品调研摘要',
+      status: '已暂停',
+      node: '等待资料补充',
+      progress: 38,
+      attention: '用户稍后补充链接',
+      updatedAt: '12 分钟前'
+    }
+  ];
+
+  return (
+    <section className="queue-workspace" aria-label="运行队列">
+      <header className="queue-hero">
+        <div>
+          <span className="eyebrow">RUN QUEUE</span>
+          <h2>运行队列</h2>
+          <p>集中查看长任务状态、当前节点、介入需求和最近更新时间，避免任务在后台静默运行。</p>
+        </div>
+        <button onClick={onOpenTask}>打开当前任务</button>
+      </header>
+
+      <section className="queue-grid">
+        {queueItems.map((item) => (
+          <article className={`queue-card queue-card-${item.status}`} key={item.id}>
+            <header>
+              <span>{item.id}</span>
+              <strong>{item.status}</strong>
+            </header>
+            <h3>{item.title}</h3>
+            <p>当前节点：{item.node}</p>
+            <div className="queue-progress" aria-label={`${item.title} 进度 ${item.progress}%`}>
+              <i style={{ width: `${item.progress}%` }} />
+            </div>
+            <footer>
+              <span>{item.attention}</span>
+              <em>{item.updatedAt}</em>
+            </footer>
+            {item.id === 'TASK-A94B' && <button onClick={onOpenTask}>进入运行台</button>}
+          </article>
+        ))}
+      </section>
+    </section>
   );
 }
 

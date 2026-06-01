@@ -88,4 +88,17 @@ describe('App runtime interactions', () => {
     expect(container.textContent).toContain('用户介入：已收到临时约束');
     expect(container.textContent).toContain('分支状态：V2 分支运行中');
   });
+
+  it('switches between task center and run queue', () => {
+    renderApp();
+
+    clickButton('◴');
+    expect(container.textContent).toContain('运行队列');
+    expect(container.textContent).toContain('AI 长任务运行台产品原型');
+    expect(container.textContent).toContain('等待介入');
+
+    clickButton('进入运行台');
+    expect(container.textContent).toContain('当前执行链路');
+    expect(container.textContent).toContain('分支式主动聊天');
+  });
 });

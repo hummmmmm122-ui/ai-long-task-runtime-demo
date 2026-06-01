@@ -226,6 +226,132 @@ button {
   background: var(--line);
 }
 
+.queue-workspace {
+  min-height: 0;
+  overflow: auto;
+  padding: 28px;
+  background:
+    linear-gradient(135deg, rgba(79, 224, 202, 0.06), transparent 42%),
+    var(--bg);
+}
+
+.queue-hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: flex-start;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 22px;
+  background: var(--panel);
+}
+
+.queue-hero h2 {
+  margin: 7px 0;
+  color: var(--text);
+  font-size: 38px;
+  line-height: 1.05;
+}
+
+.queue-hero p {
+  max-width: 720px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.queue-hero button,
+.queue-card > button {
+  min-height: 34px;
+  border: 1px solid rgba(79, 224, 202, 0.3);
+  border-radius: 8px;
+  padding: 0 13px;
+  color: var(--ink);
+  background: var(--teal);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.queue-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.queue-card {
+  display: grid;
+  gap: 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 18px;
+  background: rgba(23, 27, 24, 0.94);
+}
+
+.queue-card header,
+.queue-card footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.queue-card header span,
+.queue-card footer em {
+  color: var(--muted);
+  font-family: "Cascadia Mono", Consolas, monospace;
+  font-size: 11px;
+  font-style: normal;
+}
+
+.queue-card header strong {
+  border: 1px solid rgba(79, 224, 202, 0.25);
+  border-radius: 999px;
+  padding: 5px 8px;
+  color: var(--teal);
+  background: rgba(79, 224, 202, 0.08);
+  font-size: 11px;
+}
+
+.queue-card h3 {
+  margin: 0;
+  color: var(--text);
+  font-size: 20px;
+}
+
+.queue-card p,
+.queue-card footer span {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.queue-progress {
+  overflow: hidden;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(237, 243, 236, 0.08);
+}
+
+.queue-progress i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--teal), var(--green));
+}
+
+.queue-card-等待介入 header strong {
+  border-color: rgba(255, 209, 102, 0.32);
+  color: var(--amber);
+  background: rgba(255, 209, 102, 0.08);
+}
+
+.queue-card-已暂停 {
+  opacity: 0.72;
+}
+
 .main-panel,
 .node-list,
 .chat-panel {
@@ -1029,6 +1155,7 @@ button {
 
   .topbar,
   .stage,
+  .queue-grid,
   .scene-grid {
     grid-template-columns: 1fr;
   }

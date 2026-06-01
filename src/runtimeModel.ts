@@ -46,6 +46,16 @@ export interface Artifact {
   preview: string[];
 }
 
+export interface QueueItem {
+  id: string;
+  title: string;
+  status: '运行中' | '分支运行中' | '等待介入' | '已暂停';
+  node: string;
+  progress: number;
+  attention: string;
+  updatedAt: string;
+}
+
 export const initialStage = 2;
 export const initialSelectedId = 'draft';
 export const initialEventId = 'draft';
