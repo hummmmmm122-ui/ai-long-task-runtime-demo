@@ -265,6 +265,18 @@ button {
   line-height: 1.7;
 }
 
+.value-anchor {
+  display: inline-flex;
+  margin: 0 0 9px;
+  border: 1px solid rgba(79, 224, 202, 0.24);
+  border-radius: 999px;
+  padding: 6px 10px;
+  color: var(--teal);
+  background: rgba(79, 224, 202, 0.08);
+  font-size: 13px;
+  line-height: 1.2;
+}
+
 .clock-card {
   width: 142px;
   height: 88px;
@@ -290,7 +302,7 @@ button {
 
 .director-cue {
   display: grid;
-  grid-template-columns: 138px minmax(0, 1fr);
+  grid-template-columns: 138px minmax(0, 1fr) auto;
   gap: 16px;
   align-items: center;
   margin-top: 14px;
@@ -311,6 +323,19 @@ button {
   color: var(--text);
   font-size: 13px;
   line-height: 1.45;
+}
+
+.director-cue b {
+  width: 38px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(237, 243, 236, 0.16);
+  border-radius: 999px;
+  color: var(--text);
+  background: rgba(237, 243, 236, 0.06);
+  font-family: "Cascadia Mono", Consolas, monospace;
+  font-size: 12px;
 }
 
 .director-cue-branch {
@@ -341,8 +366,8 @@ button {
 
 .robot-scene {
   position: relative;
-  min-height: 250px;
-  max-height: 300px;
+  min-height: 210px;
+  max-height: 252px;
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -354,13 +379,13 @@ button {
 
 .blackboard {
   position: absolute;
-  left: 28px;
-  top: 28px;
-  width: 216px;
-  height: 112px;
+  left: 24px;
+  top: 24px;
+  width: 204px;
+  height: 98px;
   border: 1px solid rgba(149, 210, 123, 0.32);
   border-radius: 7px;
-  padding: 16px;
+  padding: 14px;
   background: #0b1812;
   box-shadow: inset 0 0 40px rgba(149, 210, 123, 0.08);
 }
@@ -375,9 +400,9 @@ button {
 
 .blackboard strong {
   display: block;
-  margin: 8px 0;
+  margin: 7px 0;
   color: var(--text);
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .agent {
@@ -427,7 +452,7 @@ button {
 
 .agent-main {
   left: 42%;
-  bottom: 64px;
+  bottom: 52px;
 }
 
 .agent-small {
@@ -437,13 +462,13 @@ button {
 
 .agent-small.one {
   right: 120px;
-  bottom: 96px;
+  bottom: 82px;
   animation-delay: 0.3s;
 }
 
 .agent-small.two {
   right: 58px;
-  bottom: 54px;
+  bottom: 42px;
   animation-delay: 0.7s;
 }
 
@@ -461,18 +486,18 @@ button {
 
 .thought.one {
   left: 44%;
-  top: 70px;
+  top: 54px;
 }
 
 .thought.two {
   right: 42px;
-  top: 132px;
+  top: 110px;
   animation-delay: 1s;
 }
 
 .thought.three {
   left: 82px;
-  bottom: 28px;
+  bottom: 22px;
   animation-delay: 2s;
 }
 
@@ -480,8 +505,8 @@ button {
   position: absolute;
   left: 28px;
   right: 28px;
-  bottom: 32px;
-  height: 52px;
+  bottom: 24px;
+  height: 46px;
   display: grid;
   place-items: center;
   border: 1px dashed rgba(149, 210, 123, 0.55);
@@ -584,6 +609,26 @@ button {
 .artifact-strip strong {
   color: var(--text);
   font-size: 18px;
+}
+
+.artifact-strip article.is-hot {
+  background:
+    linear-gradient(135deg, rgba(79, 224, 202, 0.18), rgba(23, 27, 24, 0.96));
+  box-shadow: inset 0 0 0 1px rgba(79, 224, 202, 0.28);
+}
+
+.artifact-strip article.is-hot strong {
+  color: var(--teal);
+}
+
+.artifact-strip article.is-branch {
+  background:
+    linear-gradient(135deg, rgba(149, 210, 123, 0.18), rgba(23, 27, 24, 0.96));
+  box-shadow: inset 0 0 0 1px rgba(149, 210, 123, 0.3);
+}
+
+.artifact-strip article.is-branch strong {
+  color: var(--green);
 }
 
 .node-list,
@@ -737,6 +782,31 @@ button {
 .next-actions button {
   width: 100%;
   text-align: left;
+}
+
+.next-actions button.selected {
+  border-color: rgba(79, 224, 202, 0.48);
+  color: var(--ink);
+  background: var(--teal);
+}
+
+.handoff-confirmation {
+  border: 1px solid rgba(149, 210, 123, 0.35);
+  border-radius: 8px;
+  padding: 11px;
+  background: rgba(149, 210, 123, 0.08);
+}
+
+.handoff-confirmation strong {
+  color: var(--green);
+  font-size: 13px;
+}
+
+.handoff-confirmation p {
+  margin: 7px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .workbench.is-focus .stage {

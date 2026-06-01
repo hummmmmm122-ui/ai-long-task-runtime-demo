@@ -3,6 +3,7 @@ import './styles.css';
 
 type NodeStatus = 'done' | 'running' | 'waiting' | 'review' | 'branched';
 type DemoStep = 'observe' | 'interrupt' | 'branch' | 'handoff';
+type HandoffAction = 'script' | 'pitch' | null;
 
 interface WorkflowNode {
   id: string;
@@ -125,6 +126,8 @@ const demoCues: Record<DemoStep, Cue> = {
   }
 };
 
+const cueOrder: DemoStep[] = ['observe', 'interrupt', 'branch', 'handoff'];
+
 function App() {
   const [selectedId, setSelectedId] = useState(initialSelectedId);
   const [stage, setStage] = useState(initialStage);
@@ -132,6 +135,7 @@ function App() {
   const [noteAccepted, setNoteAccepted] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
   const [cueStep, setCueStep] = useState<DemoStep>('observe');
+  const [handoffAction, setHandoffAction] = useState<HandoffAction>(null);
 
   const nodes = useMemo<WorkflowNode[]>(
     () =>
@@ -167,6 +171,7 @@ function App() {
   const completed = nodes.filter((node) => node.status === 'done').length;
   const progress = Math.min(((stage + 0.45) / nodes.length) * 100, 100);
   const activeCue = demoCues[cueStep];
+  const cueNumber = cueOrder.indexOf(cueStep) + 1;
   const isComplete = stage >= nodes.length - 1;
 
   const resetDemo = () => {
@@ -176,6 +181,7 @@ function App() {
     setNoteAccepted(false);
     setFullscreen(false);
     setCueStep('observe');
+    setHandoffAction(null);
   };
 
   const acceptNote = () => {
@@ -196,6 +202,7 @@ function App() {
       setSelectedId(baseNodes[next]?.id ?? selectedId);
       if (next >= baseNodes.length - 1) {
         setCueStep('handoff');
+        setHandoffAction(null);
       }
       return next;
     });
@@ -243,6 +250,7 @@ function App() {
               <div>
                 <span className="eyebrow">RUNNING TASK</span>
                 <h2>{selectedNode.title}</h2>
+                <strong className="value-anchor">把静默等待变成可观察、可介入、可分支的 AI 工作过程</strong>
                 <p>{selectedNode.detail}</p>
               </div>
               <div className="clock-card">
@@ -254,6 +262,7 @@ function App() {
             <section className={`director-cue director-cue-${activeCue.step}`} aria-label="演示步骤提示">
               <span>{activeCue.title}</span>
               <p>{activeCue.body}</p>
+              <b>{cueNumber}/4</b>
             </section>
 
             <div className="scene-grid">
@@ -298,11 +307,11 @@ function App() {
                 <span>已完成</span>
                 <strong>{completed}/5</strong>
               </article>
-              <article>
+              <article className={noteAccepted ? 'is-hot' : ''}>
                 <span>用户介入</span>
                 <strong>{noteAccepted ? '已采纳' : '等待确认'}</strong>
               </article>
-              <article>
+              <article className={branchOpened ? 'is-hot is-branch' : ''}>
                 <span>分支任务</span>
                 <strong>{branchOpened ? 'V2 运行' : '未开启'}</strong>
               </article>
@@ -371,8 +380,28 @@ function App() {
             </section>
             <section className="next-actions">
               <span>完成后的下一步</span>
-              <button>生成 3 分钟演示脚本</button>
-              <button>开新会话做 Pitch 版</button>
+              <button
+                className={handoffAction === 'script' ? 'selected' : ''}
+                onClick={() => setHandoffAction('script')}
+              >
+                生成 3 分钟演示脚本
+              </button>
+              <button
+                className={handoffAction === 'pitch' ? 'selected' : ''}
+                onClick={() => setHandoffAction('pitch')}
+              >
+                开新会话做 Pitch 版
+              </button>
+              {handoffAction && (
+                <article className="handoff-confirmation" aria-live="polite">
+                  <strong>{handoffAction === 'script' ? '脚本已准备' : 'Pitch 会话已排队'}</strong>
+                  <p>
+                    {handoffAction === 'script'
+                      ? '已把节点图、用户插话、分支选择和完成态整理成 3 分钟录屏话术。'
+                      : '已保留本次运行上下文，下一轮会直接进入面向评审的 Pitch 版本。'}
+                  </p>
+                </article>
+              )}
             </section>
           </aside>
         </section>
