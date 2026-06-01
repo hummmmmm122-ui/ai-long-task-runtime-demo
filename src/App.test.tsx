@@ -87,6 +87,9 @@ describe('App runtime interactions', () => {
   it('renders the product runtime without presentation-only copy', () => {
     renderApp();
 
+    expect(container.textContent).toContain('黑板思考');
+    expect(container.textContent).toContain('工作台');
+    expect(container.textContent).toContain('二楼分支');
     expect(container.textContent).toContain('运行细节');
     expect(container.textContent).toContain('展开');
     expect(container.textContent).not.toContain('当前执行链路');
@@ -110,6 +113,7 @@ describe('App runtime interactions', () => {
     expect(container.textContent).toContain('先只记录为约束');
 
     clickButton('保留并开分支');
+    expect(container.textContent).toContain('V2 正在试跑新意见');
     expect(container.textContent).toContain('V1 / V2 对比');
     expect(container.textContent).toContain('V1 / V2 checkpoint');
 

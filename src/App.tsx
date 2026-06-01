@@ -429,6 +429,43 @@ function App() {
               <b>{cueNumber}/4</b>
             </section>
 
+            <section className={`robot-scene ${branchOpened ? 'has-branch' : ''}`} aria-label="二维 AI 运行场景">
+              <div className="scene-floor main-floor">
+                <div className="scene-board">
+                  <span>黑板思考</span>
+                  <strong>{selectedNode.title}</strong>
+                  <p>{branchOpened ? 'V1 保留当前确认节奏，继续沉淀已有结果。' : 'AI 正在把长任务拆成可确认节点，并持续解释当前理解。'}</p>
+                </div>
+                <div className="robot-avatar" aria-hidden="true">
+                  <i />
+                  <b />
+                  <span />
+                </div>
+                <div className="thought-bubbles" aria-label="思考气泡">
+                  <em>理解目标...</em>
+                  <em>权衡确认成本...</em>
+                  <em>{pendingIntervention ? '等待处理建议' : 'working...'}</em>
+                </div>
+                <div className="scene-desk">
+                  <span>工作台</span>
+                  <strong>{currentArtifact.title}</strong>
+                </div>
+              </div>
+              <div className="scene-floor branch-floor">
+                <div>
+                  <span>二楼分支</span>
+                  <strong>{branchOpened ? 'V2 正在试跑新意见' : '等待开分支'}</strong>
+                  <p>
+                    {branchOpened
+                      ? '新意见进入另一条路径，不覆盖一楼 V1。'
+                      : runtimeConfig.autoBranch
+                        ? '保留当前版本后另起一路，二楼任务会在这里出现。'
+                        : '当前策略关闭自动分支，修改会直接写入主任务。'}
+                  </p>
+                </div>
+              </div>
+            </section>
+
             <section className="compact-section">
               <button className="collapse-toggle" type="button" onClick={() => togglePanel('guide')}>
                 <span>操作路径</span>

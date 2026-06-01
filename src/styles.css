@@ -972,6 +972,225 @@ button {
   color: var(--amber);
 }
 
+.robot-scene {
+  position: relative;
+  min-height: 258px;
+  margin-top: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(79, 224, 202, 0.22);
+  border-radius: 12px;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(79, 224, 202, 0.16), transparent 28%),
+    linear-gradient(180deg, rgba(32, 38, 31, 0.98), rgba(13, 16, 14, 0.98));
+}
+
+.robot-scene::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(237, 243, 236, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(237, 243, 236, 0.035) 1px, transparent 1px);
+  background-size: 36px 36px;
+  opacity: 0.72;
+}
+
+.scene-floor {
+  position: relative;
+  z-index: 1;
+}
+
+.main-floor {
+  height: 258px;
+}
+
+.scene-board,
+.scene-desk,
+.branch-floor > div {
+  position: absolute;
+  border: 1px solid rgba(237, 243, 236, 0.13);
+  border-radius: 10px;
+  padding: 12px;
+  background: rgba(7, 17, 15, 0.56);
+  box-shadow: 0 18px 32px rgba(0, 0, 0, 0.24);
+}
+
+.scene-board {
+  top: 22px;
+  left: 22px;
+  width: 36%;
+}
+
+.scene-desk {
+  right: 24px;
+  bottom: 22px;
+  width: 31%;
+}
+
+.scene-board span,
+.scene-desk span,
+.branch-floor span {
+  color: var(--teal);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.scene-board strong,
+.scene-desk strong,
+.branch-floor strong {
+  display: block;
+  margin-top: 6px;
+  color: var(--text);
+  font-size: 18px;
+}
+
+.scene-board p,
+.branch-floor p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.robot-avatar {
+  position: absolute;
+  left: 48%;
+  bottom: 44px;
+  width: 86px;
+  height: 104px;
+  transform: translateX(-50%);
+  animation: robot-breathe 2.8s ease-in-out infinite;
+}
+
+.robot-avatar i,
+.robot-avatar b,
+.robot-avatar span {
+  position: absolute;
+  display: block;
+}
+
+.robot-avatar i {
+  inset: 25px 13px 8px;
+  border: 1px solid rgba(79, 224, 202, 0.4);
+  border-radius: 20px 20px 24px 24px;
+  background: linear-gradient(180deg, #d9e8dc, #9cb9a4);
+}
+
+.robot-avatar b {
+  top: 0;
+  left: 17px;
+  width: 52px;
+  height: 40px;
+  border: 1px solid rgba(79, 224, 202, 0.38);
+  border-radius: 18px;
+  background: #dfeadf;
+}
+
+.robot-avatar b::before,
+.robot-avatar b::after {
+  content: "";
+  position: absolute;
+  top: 18px;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--ink);
+}
+
+.robot-avatar b::before {
+  left: 14px;
+}
+
+.robot-avatar b::after {
+  right: 14px;
+}
+
+.robot-avatar span {
+  left: 34px;
+  bottom: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--teal);
+  box-shadow: 0 0 22px rgba(79, 224, 202, 0.7);
+}
+
+.thought-bubbles {
+  position: absolute;
+  left: calc(48% + 54px);
+  top: 28px;
+  display: grid;
+  gap: 7px;
+}
+
+.thought-bubbles em {
+  border: 1px solid rgba(79, 224, 202, 0.22);
+  border-radius: 999px;
+  padding: 7px 10px;
+  color: var(--text);
+  background: rgba(7, 17, 15, 0.62);
+  font-size: 12px;
+  font-style: normal;
+  animation: bubble-rise 4.2s ease-in-out infinite;
+}
+
+.thought-bubbles em:nth-child(2) {
+  animation-delay: 0.8s;
+}
+
+.thought-bubbles em:nth-child(3) {
+  animation-delay: 1.6s;
+}
+
+.branch-floor {
+  height: 0;
+  border-top: 1px solid transparent;
+  opacity: 0;
+  transform: translateY(18px);
+  transition: height 240ms ease, opacity 240ms ease, transform 240ms ease;
+}
+
+.robot-scene.has-branch .branch-floor {
+  height: 98px;
+  border-top-color: rgba(149, 210, 123, 0.28);
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.branch-floor > div {
+  inset: 14px 22px;
+  background:
+    linear-gradient(90deg, rgba(149, 210, 123, 0.12), rgba(7, 17, 15, 0.58));
+}
+
+.branch-floor strong {
+  color: var(--green);
+}
+
+@keyframes robot-breathe {
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-5px);
+  }
+}
+
+@keyframes bubble-rise {
+  0%,
+  100% {
+    opacity: 0.72;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-4px);
+  }
+}
+
 .compact-section {
   display: grid;
   gap: 8px;
