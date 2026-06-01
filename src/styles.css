@@ -431,6 +431,25 @@ button {
   font-weight: 900;
 }
 
+.queue-action-note {
+  margin-top: 12px;
+  border: 1px solid rgba(149, 210, 123, 0.28);
+  border-radius: 8px;
+  padding: 10px;
+  background: rgba(149, 210, 123, 0.08);
+}
+
+.queue-action-note strong {
+  color: var(--green);
+  font-size: 12px;
+}
+
+.queue-action-note p {
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
 .template-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

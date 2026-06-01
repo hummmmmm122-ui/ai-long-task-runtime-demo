@@ -101,6 +101,12 @@ describe('App runtime interactions', () => {
     expect(container.textContent).toContain('缺少产品边界说明');
     expect(container.textContent).toContain('引用缺口清单.csv');
     expect(container.textContent).toContain('标记稍后处理');
+    clickButton('标记稍后处理');
+    expect(container.textContent).toContain('已加入稍后处理');
+    expect(container.textContent).toContain('恢复处理');
+
+    clickButton('恢复处理');
+    expect(container.textContent).toContain('标记稍后处理');
 
     clickButton('查看AI 长任务运行台产品原型');
     clickButton('进入运行台');

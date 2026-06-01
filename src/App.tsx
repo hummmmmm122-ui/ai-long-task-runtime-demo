@@ -547,8 +547,32 @@ function QueueView({
       detail: '任务已保留当前调研草稿，等待用户补充竞品链接后继续生成对比摘要。'
     }
   ];
+  const [deferredTaskIds, setDeferredTaskIds] = useState<string[]>([]);
   const [selectedQueueId, setSelectedQueueId] = useState(queueItems[0].id);
-  const selectedQueueItem = queueItems.find((item) => item.id === selectedQueueId) ?? queueItems[0];
+  const displayQueueItems = queueItems.map((item) => {
+    if (item.id === 'TASK-A94B' || !deferredTaskIds.includes(item.id)) {
+      return item;
+    }
+
+    return {
+      ...item,
+      status: '已暂停' as QueueItem['status'],
+      attention: '已加入稍后处理',
+      updatedAt: '刚刚',
+      nextAction: '恢复处理后继续当前队列动作',
+      detail: `${item.detail} 当前已标记为稍后处理，运行队列会保留上下文但不主动推进。`
+    };
+  });
+  const selectedQueueItem = displayQueueItems.find((item) => item.id === selectedQueueId) ?? displayQueueItems[0];
+  const isSelectedDeferred = deferredTaskIds.includes(selectedQueueItem.id);
+
+  const toggleDeferredTask = (taskId: string) => {
+    setDeferredTaskIds((current) => (
+      current.includes(taskId)
+        ? current.filter((id) => id !== taskId)
+        : [...current, taskId]
+    ));
+  };
 
   return (
     <section className="queue-workspace" aria-label="运行队列">
@@ -563,7 +587,7 @@ function QueueView({
 
       <section className="queue-layout">
         <div className="queue-grid">
-          {queueItems.map((item) => (
+          {displayQueueItems.map((item) => (
           <article className={`queue-card queue-card-${item.status} ${item.id === selectedQueueItem.id ? 'selected' : ''}`} key={item.id}>
             <header>
               <span>{item.id}</span>
@@ -608,7 +632,15 @@ function QueueView({
           {selectedQueueItem.id === 'TASK-A94B' ? (
             <button onClick={onOpenTask}>进入运行台</button>
           ) : (
-            <button type="button">标记稍后处理</button>
+            <button type="button" onClick={() => toggleDeferredTask(selectedQueueItem.id)}>
+              {isSelectedDeferred ? '恢复处理' : '标记稍后处理'}
+            </button>
+          )}
+          {isSelectedDeferred && (
+            <article className="queue-action-note" aria-live="polite">
+              <strong>{selectedQueueItem.title} 已加入稍后处理</strong>
+              <p>上下文和当前产物会留在队列里，恢复处理后可以继续从当前节点推进。</p>
+            </article>
           )}
         </aside>
       </section>
