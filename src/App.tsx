@@ -184,6 +184,7 @@ function App() {
     setCueStep('interrupt');
     setSelectedId('draft');
     setSelectedEventId('draft');
+    setOpenPanels((current) => ({ ...current, details: true }));
   };
 
   const openBranch = () => {
@@ -192,6 +193,7 @@ function App() {
     setSelectedId('branch');
     setSelectedEventId('branch');
     setSelectedArtifact('checkpoint');
+    setOpenPanels((current) => ({ ...current, details: true }));
   };
 
   const resolveIntervention = (mode: 'current' | 'branch' | 'record') => {
@@ -458,6 +460,26 @@ function App() {
                 <span>运行细节</span>
                 <strong>{openPanels.details ? '收起' : '展开'}</strong>
               </button>
+              {!openPanels.details && (
+                <section className="collapsed-snapshot" aria-label="当前产物快照">
+                  <article>
+                    <span>当前产物</span>
+                    <strong>{currentArtifact.title}</strong>
+                    <p>{currentArtifact.summary}</p>
+                  </article>
+                  <article>
+                    <span>节点决策</span>
+                    <strong>{decisionLabel[nodeDecision]}</strong>
+                    <p>
+                      {pendingIntervention
+                        ? '有一条修改意见等待处理。'
+                        : runtimeConfig.autoBranch
+                          ? '可以写入当前节点，也可以保留当前版本后另起一路。'
+                          : '当前策略会直接写入主任务，不自动开分支。'}
+                    </p>
+                  </article>
+                </section>
+              )}
               {openPanels.details && (
             <div className="scene-grid">
               <section className="runtime-panel" aria-label="运行事件流">
