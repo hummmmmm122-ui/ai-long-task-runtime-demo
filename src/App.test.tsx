@@ -126,4 +126,21 @@ describe('App runtime interactions', () => {
     expect(container.textContent).toContain('等待补充');
     expect(container.textContent).toContain('来自队列中等待介入的任务');
   });
+
+  it('applies a template and updates runtime settings', () => {
+    renderApp();
+
+    clickButton('▤');
+    clickButton('套用模板');
+    expect(container.textContent).toContain('已套用');
+
+    clickButton('⚙');
+    expect(container.textContent).toContain('运行设置');
+    clickButton('稳妥确认');
+    clickButton('修改默认保留分支');
+    expect(container.textContent).toContain('采纳修改时直接覆盖当前草稿');
+
+    clickButton('回到运行台');
+    expect(container.textContent).toContain('当前模板：多轮方案生成 · 稳妥确认');
+  });
 });

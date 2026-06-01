@@ -22,7 +22,14 @@ import {
   type RuntimeStep
 } from './runtimeModel';
 
-type WorkspaceView = 'task' | 'queue' | 'templates' | 'resources';
+type WorkspaceView = 'task' | 'queue' | 'templates' | 'resources' | 'settings';
+
+type RuntimeConfig = {
+  rhythm: 'balanced' | 'safe' | 'fast';
+  userInterrupt: boolean;
+  autoBranch: boolean;
+  handoffSummary: boolean;
+};
 
 function App() {
   const [workspaceView, setWorkspaceView] = useState<WorkspaceView>('task');
@@ -38,6 +45,13 @@ function App() {
   const [extraMessages, setExtraMessages] = useState<ChatMessage[]>([]);
   const [nodeDecision, setNodeDecision] = useState<NodeDecision>('pending');
   const [selectedArtifact, setSelectedArtifact] = useState<ArtifactKey>('draft');
+  const [appliedTemplate, setAppliedTemplate] = useState('长文档分析任务');
+  const [runtimeConfig, setRuntimeConfig] = useState<RuntimeConfig>({
+    rhythm: 'balanced',
+    userInterrupt: true,
+    autoBranch: true,
+    handoffSummary: true
+  });
 
   const nodes = useMemo(() => deriveNodes(stage, noteAccepted, branchOpened), [branchOpened, noteAccepted, stage]);
 
@@ -152,7 +166,14 @@ function App() {
         >
           ◇
         </button>
-        <button className="rail-item bottom" title="设置" aria-label="设置">⚙</button>
+        <button
+          className={`rail-item bottom ${workspaceView === 'settings' ? 'active' : ''}`}
+          title="设置"
+          aria-label="设置"
+          onClick={() => setWorkspaceView('settings')}
+        >
+          ⚙
+        </button>
       </aside>
 
       <section className="workspace">
@@ -189,9 +210,19 @@ function App() {
             onOpenTask={() => setWorkspaceView('task')}
           />
         ) : workspaceView === 'templates' ? (
-          <TemplateView onOpenTask={() => setWorkspaceView('task')} />
+          <TemplateView
+            appliedTemplate={appliedTemplate}
+            onApplyTemplate={setAppliedTemplate}
+            onOpenTask={() => setWorkspaceView('task')}
+          />
         ) : workspaceView === 'resources' ? (
           <ResourceView branchOpened={branchOpened} onOpenTask={() => setWorkspaceView('task')} />
+        ) : workspaceView === 'settings' ? (
+          <SettingsView
+            config={runtimeConfig}
+            onChangeConfig={setRuntimeConfig}
+            onOpenTask={() => setWorkspaceView('task')}
+          />
         ) : (
         <section className="stage">
           <section className="main-panel">
@@ -200,6 +231,7 @@ function App() {
                 <span className="eyebrow">ACTIVE TASK</span>
                 <h2>{selectedNode.title}</h2>
                 <strong className="value-anchor">把静默等待变成可观察、可介入、可分支的 AI 工作过程</strong>
+                <span className="template-anchor">当前模板：{appliedTemplate} · {runtimeConfig.rhythm === 'safe' ? '稳妥确认' : runtimeConfig.rhythm === 'fast' ? '快速推进' : '平衡推进'}</span>
                 <p>{selectedNode.detail}</p>
               </div>
               <div className="clock-card">
@@ -566,7 +598,15 @@ function QueueView({
   );
 }
 
-function TemplateView({ onOpenTask }: { onOpenTask: () => void }) {
+function TemplateView({
+  appliedTemplate,
+  onApplyTemplate,
+  onOpenTask
+}: {
+  appliedTemplate: string;
+  onApplyTemplate: (templateName: string) => void;
+  onOpenTask: () => void;
+}) {
   const templates = [
     {
       id: 'TPL-LONGDOC',
@@ -625,9 +665,98 @@ function TemplateView({ onOpenTask }: { onOpenTask: () => void }) {
                 <dd>{template.branch}</dd>
               </div>
             </dl>
-            <button type="button">套用模板</button>
+            <button
+              className={appliedTemplate === template.title ? 'selected' : ''}
+              type="button"
+              onClick={() => onApplyTemplate(template.title)}
+            >
+              {appliedTemplate === template.title ? '已套用' : '套用模板'}
+            </button>
           </article>
         ))}
+      </section>
+    </section>
+  );
+}
+
+function SettingsView({
+  config,
+  onChangeConfig,
+  onOpenTask
+}: {
+  config: RuntimeConfig;
+  onChangeConfig: (config: RuntimeConfig) => void;
+  onOpenTask: () => void;
+}) {
+  const rhythmCopy = {
+    balanced: '平衡推进',
+    safe: '稳妥确认',
+    fast: '快速推进'
+  };
+
+  const updateFlag = (key: keyof Omit<RuntimeConfig, 'rhythm'>) => {
+    onChangeConfig({ ...config, [key]: !config[key] });
+  };
+
+  return (
+    <section className="library-workspace" aria-label="运行设置">
+      <header className="queue-hero">
+        <div>
+          <span className="eyebrow">RUNTIME SETTINGS</span>
+          <h2>运行设置</h2>
+          <p>把 AI 长任务的确认节奏、插话入口、分支策略和交接摘要显式化，让用户知道系统会怎样继续做事。</p>
+        </div>
+        <button onClick={onOpenTask}>回到运行台</button>
+      </header>
+
+      <section className="settings-layout">
+        <article className="settings-card">
+          <span>CONFIRMATION RHYTHM</span>
+          <h3>确认节奏</h3>
+          <p>控制 AI 在长任务里是更快推进，还是更多停下来等待确认。</p>
+          <div className="segmented-control" role="group" aria-label="确认节奏">
+            {(['balanced', 'safe', 'fast'] as RuntimeConfig['rhythm'][]).map((rhythm) => (
+              <button
+                className={config.rhythm === rhythm ? 'selected' : ''}
+                key={rhythm}
+                onClick={() => onChangeConfig({ ...config, rhythm })}
+                type="button"
+              >
+                {rhythmCopy[rhythm]}
+              </button>
+            ))}
+          </div>
+        </article>
+
+        <article className="settings-card">
+          <span>GUARDRAILS</span>
+          <h3>运行护栏</h3>
+          <p>这些开关决定用户能否随时插话，以及 AI 是否自动保留分支和阶段摘要。</p>
+          <div className="toggle-list">
+            <button className={config.userInterrupt ? 'selected' : ''} onClick={() => updateFlag('userInterrupt')} type="button">
+              <strong>允许用户随时插话</strong>
+              <em>{config.userInterrupt ? '已开启' : '已关闭'}</em>
+            </button>
+            <button className={config.autoBranch ? 'selected' : ''} onClick={() => updateFlag('autoBranch')} type="button">
+              <strong>修改默认保留分支</strong>
+              <em>{config.autoBranch ? '已开启' : '已关闭'}</em>
+            </button>
+            <button className={config.handoffSummary ? 'selected' : ''} onClick={() => updateFlag('handoffSummary')} type="button">
+              <strong>交接时生成阶段摘要</strong>
+              <em>{config.handoffSummary ? '已开启' : '已关闭'}</em>
+            </button>
+          </div>
+        </article>
+
+        <aside className="settings-summary">
+          <span>当前策略</span>
+          <h3>{rhythmCopy[config.rhythm]}</h3>
+          <ul>
+            <li>{config.userInterrupt ? '用户可以随时把意见挂到当前节点' : '用户插话入口会被收起'}</li>
+            <li>{config.autoBranch ? '采纳修改时优先保留 V1 / V2 分支' : '采纳修改时直接覆盖当前草稿'}</li>
+            <li>{config.handoffSummary ? '结束阶段时生成可交接摘要' : '结束阶段时只保留事件记录'}</li>
+          </ul>
+        </aside>
       </section>
     </section>
   );

@@ -519,6 +519,12 @@ button {
   font-weight: 900;
 }
 
+.template-card button.selected {
+  border-color: rgba(149, 210, 123, 0.36);
+  color: var(--text);
+  background: rgba(149, 210, 123, 0.16);
+}
+
 .resource-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 360px;
@@ -581,6 +587,117 @@ button {
     var(--panel);
 }
 
+.settings-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 340px;
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.settings-card,
+.settings-summary {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 18px;
+  background: var(--panel);
+}
+
+.settings-card {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+}
+
+.settings-card > span,
+.settings-summary > span {
+  color: var(--teal);
+  font-family: "Cascadia Mono", Consolas, monospace;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.settings-card h3,
+.settings-summary h3 {
+  margin: 0;
+  color: var(--text);
+  font-size: 22px;
+}
+
+.settings-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.segmented-control,
+.toggle-list {
+  display: grid;
+  gap: 8px;
+}
+
+.segmented-control {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.segmented-control button,
+.toggle-list button {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+  color: var(--text);
+  background: var(--panel-2);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.segmented-control button.selected,
+.toggle-list button.selected {
+  border-color: rgba(79, 224, 202, 0.45);
+  color: var(--ink);
+  background: var(--teal);
+}
+
+.toggle-list button {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  text-align: left;
+}
+
+.toggle-list em {
+  color: inherit;
+  font-size: 11px;
+  font-style: normal;
+}
+
+.settings-summary {
+  align-self: start;
+  display: grid;
+  gap: 13px;
+  background:
+    linear-gradient(155deg, rgba(255, 209, 102, 0.1), transparent 42%),
+    var(--panel);
+}
+
+.settings-summary ul {
+  display: grid;
+  gap: 9px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.settings-summary li {
+  border-left: 2px solid rgba(255, 209, 102, 0.4);
+  padding-left: 9px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
 .main-panel,
 .node-list,
 .chat-panel {
@@ -630,6 +747,16 @@ button {
   background: rgba(79, 224, 202, 0.08);
   font-size: 13px;
   line-height: 1.2;
+}
+
+.template-anchor {
+  display: table;
+  margin: 0 0 10px;
+  border-left: 2px solid rgba(149, 210, 123, 0.42);
+  padding-left: 9px;
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 900;
 }
 
 .clock-card {
@@ -1388,6 +1515,7 @@ button {
   .queue-grid,
   .template-grid,
   .resource-layout,
+  .settings-layout,
   .scene-grid {
     grid-template-columns: 1fr;
   }
