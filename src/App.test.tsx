@@ -110,6 +110,8 @@ describe('App runtime interactions', () => {
 
     clickButton('继续执行');
     clickButton('继续执行');
+    expect(container.textContent).toContain('准备交付');
+    clickButton('准备交付');
     clickButton('生成阶段摘要');
 
     expect(container.textContent).toContain('当前节点决策：需人工复核');
@@ -224,6 +226,11 @@ describe('App runtime interactions', () => {
     expect(container.textContent).not.toContain('临时介入');
     expect(container.textContent).not.toContain('保留并开分支');
     expect(container.textContent).not.toContain('生成阶段摘要');
+
+    clickButton('继续执行');
+    clickButton('继续执行');
+    clickButton('准备交付');
+    expect(container.textContent).toContain('后续会话已排队');
   });
 
   it('uses top search and notifications as working command surfaces', () => {

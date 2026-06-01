@@ -175,6 +175,12 @@ function App() {
   };
 
   const advance = () => {
+    if (isComplete) {
+      setCueStep('handoff');
+      setHandoffAction(runtimeConfig.handoffSummary ? 'summary' : 'continue');
+      return;
+    }
+
     setStage((current) => {
       const next = Math.min(current + 1, baseNodes.length - 1);
       setSelectedId(baseNodes[next]?.id ?? selectedId);
@@ -291,7 +297,9 @@ function App() {
             >
               ◌
             </button>
-            <button className="execute-button" onClick={advance}>▶ 继续执行</button>
+            <button className="execute-button" onClick={advance}>
+              ▶ {isComplete ? '准备交付' : '继续执行'}
+            </button>
           </div>
         </header>
 
