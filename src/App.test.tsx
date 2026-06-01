@@ -87,7 +87,9 @@ describe('App runtime interactions', () => {
   it('renders the product runtime without presentation-only copy', () => {
     renderApp();
 
-    expect(container.textContent).toContain('当前执行链路');
+    expect(container.textContent).toContain('运行细节');
+    expect(container.textContent).toContain('展开');
+    expect(container.textContent).not.toContain('当前执行链路');
     expect(container.textContent).toContain('继续执行');
     for (const copy of presentationOnlyCopy) {
       expect(container.textContent).not.toContain(copy);
@@ -97,6 +99,7 @@ describe('App runtime interactions', () => {
   it('supports node review, branch comparison, and stateful handoff summary', () => {
     renderApp();
 
+    clickButton('运行细节');
     clickButton('标记需复核');
     expect(container.textContent).toContain('需人工复核');
 
@@ -114,6 +117,7 @@ describe('App runtime interactions', () => {
     clickButton('继续执行');
     expect(container.textContent).toContain('准备交付');
     clickButton('准备交付');
+    clickButton('完成后的下一步');
     clickButton('生成阶段摘要');
 
     expect(container.textContent).toContain('当前节点决策：需人工复核');
@@ -142,6 +146,8 @@ describe('App runtime interactions', () => {
 
     clickButton('查看AI 长任务运行台产品原型');
     clickButton('进入运行台');
+    expect(container.textContent).toContain('运行细节');
+    clickButton('运行细节');
     expect(container.textContent).toContain('当前执行链路');
     expect(container.textContent).toContain('分支式主动聊天');
   });
@@ -225,6 +231,7 @@ describe('App runtime interactions', () => {
 
     expect(container.textContent).toContain('插话入口已收起');
     expect(container.textContent).toContain('当前策略：直接写入主任务，不自动开启分支');
+    clickButton('完成后的下一步');
     expect(container.textContent).toContain('阶段摘要已关闭');
     expect(container.textContent).not.toContain('自由输入');
     expect(container.textContent).not.toContain('保留并开分支');

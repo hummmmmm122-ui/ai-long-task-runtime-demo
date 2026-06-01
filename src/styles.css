@@ -840,22 +840,23 @@ button {
 
 .main-panel {
   display: grid;
-  grid-template-rows: auto auto auto minmax(0, 1fr) auto;
-  padding: 20px;
+  grid-template-rows: auto auto auto auto auto;
+  align-content: start;
+  padding: 18px;
 }
 
 .status-header {
   display: flex;
   justify-content: space-between;
   gap: 20px;
-  padding-bottom: 18px;
+  padding-bottom: 14px;
   border-bottom: 1px solid var(--line);
 }
 
 .status-header h2 {
   margin: 6px 0 6px;
   color: var(--text);
-  font-size: 34px;
+  font-size: 30px;
   line-height: 1.08;
   font-weight: 700;
   letter-spacing: 0;
@@ -919,7 +920,7 @@ button {
   grid-template-columns: 126px minmax(0, 1fr) auto;
   gap: 12px;
   align-items: center;
-  margin-top: 12px;
+  margin-top: 10px;
   border: 1px solid rgba(79, 224, 202, 0.22);
   border-radius: 8px;
   padding: 10px 12px;
@@ -970,11 +971,51 @@ button {
   color: var(--amber);
 }
 
+.compact-section {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.collapse-toggle {
+  width: 100%;
+  min-height: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0 11px;
+  color: var(--muted);
+  background: rgba(237, 243, 236, 0.035);
+  text-align: left;
+}
+
+.collapse-toggle:hover {
+  border-color: rgba(79, 224, 202, 0.36);
+  color: var(--teal);
+  background: rgba(79, 224, 202, 0.07);
+}
+
+.collapse-toggle span {
+  color: inherit;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.collapse-toggle strong {
+  color: var(--text);
+  font-size: 12px;
+}
+
 .operation-guide {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
-  margin-top: 10px;
+  margin-top: 0;
 }
 
 .guide-card {
@@ -1433,7 +1474,7 @@ button {
 
 .side-workspace {
   display: grid;
-  grid-template-rows: 246px minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
   gap: 1px;
   overflow: hidden;
   background: var(--line);
@@ -1442,11 +1483,47 @@ button {
 .node-list,
 .chat-panel {
   overflow: auto;
-  padding: 16px;
+  padding: 14px;
 }
 
 .node-list {
-  max-height: 246px;
+  max-height: 124px;
+}
+
+.node-list.is-open {
+  max-height: 312px;
+}
+
+.node-summary {
+  display: grid;
+  gap: 5px;
+  margin-top: 10px;
+  border: 1px solid rgba(79, 224, 202, 0.24);
+  border-radius: 8px;
+  padding: 10px;
+  background: rgba(79, 224, 202, 0.06);
+}
+
+.node-summary strong {
+  color: var(--text);
+  font-size: 13px;
+}
+
+.node-summary span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.reset-inline {
+  width: 100%;
+  min-height: 28px;
+  margin: 10px 0 8px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  color: var(--text);
+  background: var(--panel-2);
+  font-size: 12px;
+  font-weight: 800;
 }
 
 .node-list header,
@@ -1529,8 +1606,8 @@ button {
 .chat-howto {
   border: 1px solid rgba(79, 224, 202, 0.26);
   border-radius: 8px;
-  padding: 10px;
-  margin-bottom: 10px;
+  padding: 9px;
+  margin-bottom: 8px;
   background: linear-gradient(135deg, rgba(79, 224, 202, 0.12), rgba(79, 224, 202, 0.03));
 }
 
@@ -1591,11 +1668,12 @@ button {
 .branch-card,
 .intervention-form,
 .next-actions,
-.quick-prompts {
+.quick-prompts,
+.message-list-wrap {
   margin-top: 10px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 12px;
+  padding: 10px;
   background: var(--panel-2);
 }
 
@@ -1603,14 +1681,6 @@ button {
   display: grid;
   gap: 6px;
   background: rgba(79, 224, 202, 0.045);
-}
-
-.quick-prompts span {
-  color: var(--teal);
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
 }
 
 .quick-prompts button {

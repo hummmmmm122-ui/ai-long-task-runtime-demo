@@ -42,6 +42,7 @@ type TemplatePreset = {
 };
 
 type TopPanel = 'search' | 'notifications' | null;
+type CollapsiblePanel = 'guide' | 'details' | 'nodes' | 'quickPrompts' | 'history' | 'handoff';
 
 function App() {
   const [workspaceView, setWorkspaceView] = useState<WorkspaceView>('task');
@@ -62,6 +63,14 @@ function App() {
   const [topPanel, setTopPanel] = useState<TopPanel>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedQueueId, setSelectedQueueId] = useState('TASK-A94B');
+  const [openPanels, setOpenPanels] = useState<Record<CollapsiblePanel, boolean>>({
+    guide: false,
+    details: false,
+    nodes: false,
+    quickPrompts: false,
+    history: false,
+    handoff: false
+  });
   const [runtimeConfig, setRuntimeConfig] = useState<RuntimeConfig>({
     rhythm: 'balanced',
     userInterrupt: true,
@@ -87,6 +96,10 @@ function App() {
     '先保留当前版本，再开一个更激进的方案分支。',
     '把风险校验提前，避免最后才发现引用缺口。'
   ];
+
+  const togglePanel = (panel: CollapsiblePanel) => {
+    setOpenPanels((current) => ({ ...current, [panel]: !current[panel] }));
+  };
 
   const selectedEvent = runtimeEvents.find((event) => event.id === selectedEventId) ?? runtimeEvents[0];
   const rhythmLabel = runtimeConfig.rhythm === 'safe' ? '稳妥确认' : runtimeConfig.rhythm === 'fast' ? '快速推进' : '平衡推进';
@@ -414,24 +427,38 @@ function App() {
               <b>{cueNumber}/4</b>
             </section>
 
-            <section className="operation-guide" aria-label="操作路径">
-              <article className="guide-card is-active">
-                <span>1</span>
-                <strong>先提修改意见</strong>
-                <p>在右侧分支对话里输入约束，或点一个快捷意见。</p>
-              </article>
-              <article className={pendingIntervention ? 'guide-card is-active' : 'guide-card'}>
-                <span>2</span>
-                <strong>再选择处理方式</strong>
-                <p>{runtimeConfig.autoBranch ? '写入当前节点、保留并开分支，或只记录为约束。' : '写入当前节点，或先只记录为约束。'}</p>
-              </article>
-              <article className={branchOpened ? 'guide-card is-active' : 'guide-card'}>
-                <span>3</span>
-                <strong>最后看结果差异</strong>
-                <p>节点图、事件流和 V1/V2 checkpoint 会同步变化。</p>
-              </article>
+            <section className="compact-section">
+              <button className="collapse-toggle" type="button" onClick={() => togglePanel('guide')}>
+                <span>操作路径</span>
+                <strong>{openPanels.guide ? '收起' : '展开'}</strong>
+              </button>
+              {openPanels.guide && (
+                <div className="operation-guide" aria-label="操作路径">
+                  <article className="guide-card is-active">
+                    <span>1</span>
+                    <strong>先提修改意见</strong>
+                    <p>在右侧分支对话里输入约束，或点一个快捷意见。</p>
+                  </article>
+                  <article className={pendingIntervention ? 'guide-card is-active' : 'guide-card'}>
+                    <span>2</span>
+                    <strong>再选择处理方式</strong>
+                    <p>{runtimeConfig.autoBranch ? '写入当前节点、保留并开分支，或只记录为约束。' : '写入当前节点，或先只记录为约束。'}</p>
+                  </article>
+                  <article className={branchOpened ? 'guide-card is-active' : 'guide-card'}>
+                    <span>3</span>
+                    <strong>最后看结果差异</strong>
+                    <p>节点图、事件流和 V1/V2 checkpoint 会同步变化。</p>
+                  </article>
+                </div>
+              )}
             </section>
 
+            <section className="compact-section">
+              <button className="collapse-toggle" type="button" onClick={() => togglePanel('details')}>
+                <span>运行细节</span>
+                <strong>{openPanels.details ? '收起' : '展开'}</strong>
+              </button>
+              {openPanels.details && (
             <div className="scene-grid">
               <section className="runtime-panel" aria-label="运行事件流">
                 <header>
@@ -538,6 +565,8 @@ function App() {
                 )}
               </section>
             </div>
+              )}
+            </section>
 
             <section className="artifact-strip" aria-label="产物预览">
               <article>
@@ -560,24 +589,34 @@ function App() {
           </section>
 
           <aside className="side-workspace" aria-label="节点与分支操作">
-            <section className="node-list" aria-label="实时节点图">
-              <header>
+            <section className={`node-list ${openPanels.nodes ? 'is-open' : ''}`} aria-label="实时节点图">
+              <button className="collapse-toggle" type="button" onClick={() => togglePanel('nodes')}>
                 <span>实时节点图</span>
-                <button onClick={resetTask}>重置任务</button>
-              </header>
-              {nodes.map((node, index) => (
-                <button
-                  key={node.id}
-                  className={`node-row ${node.status} ${node.id === selectedId ? 'selected' : ''}`}
-                  onClick={() => setSelectedId(node.id)}
-                >
-                  <b>{String(index + 1).padStart(2, '0')}</b>
-                  <span>
-                    <strong>{node.title}</strong>
-                    <em>{statusLabel(node.status)}</em>
-                  </span>
-                </button>
-              ))}
+                <strong>{openPanels.nodes ? '收起' : '展开'}</strong>
+              </button>
+              {openPanels.nodes ? (
+                <>
+                  <button className="reset-inline" onClick={resetTask}>重置任务</button>
+                  {nodes.map((node, index) => (
+                    <button
+                      key={node.id}
+                      className={`node-row ${node.status} ${node.id === selectedId ? 'selected' : ''}`}
+                      onClick={() => setSelectedId(node.id)}
+                    >
+                      <b>{String(index + 1).padStart(2, '0')}</b>
+                      <span>
+                        <strong>{node.title}</strong>
+                        <em>{statusLabel(node.status)}</em>
+                      </span>
+                    </button>
+                  ))}
+                </>
+              ) : (
+                <article className="node-summary">
+                  <strong>{String(stage + 1).padStart(2, '0')} · {selectedNode.title}</strong>
+                  <span>{statusLabel(selectedNode.status)} · 已完成 {completed}/5</span>
+                </article>
+              )}
             </section>
 
           <section className="chat-panel" aria-label="分支式主动聊天">
@@ -611,8 +650,11 @@ function App() {
               </section>
             )}
             <section className="quick-prompts" aria-label="快捷修改意见">
-              <span>试试这些自由意见</span>
-              {quickInterventions.map((prompt) => (
+              <button className="collapse-toggle" type="button" onClick={() => togglePanel('quickPrompts')}>
+                <span>快捷意见</span>
+                <strong>{openPanels.quickPrompts ? '收起' : '展开'}</strong>
+              </button>
+              {openPanels.quickPrompts && quickInterventions.map((prompt) => (
                 <button
                   key={prompt}
                   type="button"
@@ -639,61 +681,76 @@ function App() {
                 </button>
               )}
             </section>
-            <div className="message-list">
-              {visibleMessages.map((message, index) => (
-                <article className={`message ${message.speaker === 'User' ? 'user' : 'ai'}`} key={`${message.speaker}-${index}`}>
-                  <span>{message.speaker}</span>
-                  <p>{message.text}</p>
-                </article>
-              ))}
-              {noteAccepted && (
-                <article className="message ai message-feedback">
-                  <span>AI</span>
-                  <p>偏好已并入“生成方案”节点：第二节点不再阻塞确认，主任务继续运行。</p>
-                </article>
-              )}
-              {branchOpened && (
-                <article className="message ai message-feedback">
-                  <span>AI</span>
-                  <p>已保留当前版本 V1，并开启 V2 分支尝试用户的新意见。</p>
-                </article>
-              )}
-            </div>
-            <section className="next-actions">
-              <span>完成后的下一步</span>
-              {runtimeConfig.handoffSummary ? (
-                <button
-                  className={handoffAction === 'summary' ? 'selected' : ''}
-                  onClick={() => setHandoffAction('summary')}
-                >
-                  生成阶段摘要
-                </button>
-              ) : (
-                <article className="policy-note compact">
-                  <span>阶段摘要已关闭</span>
-                  <p>完成时只保留事件记录，不生成单独交接摘要。</p>
-                </article>
-              )}
-              <button
-                className={handoffAction === 'continue' ? 'selected' : ''}
-                onClick={() => setHandoffAction('continue')}
-              >
-                开新会话继续
+            <section className="message-list-wrap">
+              <button className="collapse-toggle" type="button" onClick={() => togglePanel('history')}>
+                <span>对话记录</span>
+                <strong>{openPanels.history ? '收起' : `${visibleMessages.length} 条`}</strong>
               </button>
-              {handoffAction && (handoffAction !== 'summary' || runtimeConfig.handoffSummary) && (
-                <article className="handoff-confirmation" aria-live="polite">
-                  <strong>{handoffAction === 'summary' ? '阶段摘要已准备' : '后续会话已排队'}</strong>
-                  <p>
-                    {handoffAction === 'summary'
-                      ? '已把节点图、用户插话、分支选择和完成态整理成可交付摘要。'
-                      : '已保留本次运行上下文，下一轮会直接接续当前任务。'}
-                  </p>
-                  {handoffAction === 'summary' && (
-                    <ul>
-                      {handoffSummary.map((item) => <li key={item}>{item}</li>)}
-                    </ul>
+              {openPanels.history && (
+                <div className="message-list">
+                  {visibleMessages.map((message, index) => (
+                    <article className={`message ${message.speaker === 'User' ? 'user' : 'ai'}`} key={`${message.speaker}-${index}`}>
+                      <span>{message.speaker}</span>
+                      <p>{message.text}</p>
+                    </article>
+                  ))}
+                  {noteAccepted && (
+                    <article className="message ai message-feedback">
+                      <span>AI</span>
+                      <p>偏好已并入“生成方案”节点：第二节点不再阻塞确认，主任务继续运行。</p>
+                    </article>
                   )}
-                </article>
+                  {branchOpened && (
+                    <article className="message ai message-feedback">
+                      <span>AI</span>
+                      <p>已保留当前版本 V1，并开启 V2 分支尝试用户的新意见。</p>
+                    </article>
+                  )}
+                </div>
+              )}
+            </section>
+            <section className="next-actions">
+              <button className="collapse-toggle" type="button" onClick={() => togglePanel('handoff')}>
+                <span>完成后的下一步</span>
+                <strong>{openPanels.handoff ? '收起' : '展开'}</strong>
+              </button>
+              {openPanels.handoff && (
+                <>
+                  {runtimeConfig.handoffSummary ? (
+                    <button
+                      className={handoffAction === 'summary' ? 'selected' : ''}
+                      onClick={() => setHandoffAction('summary')}
+                    >
+                      生成阶段摘要
+                    </button>
+                  ) : (
+                    <article className="policy-note compact">
+                      <span>阶段摘要已关闭</span>
+                      <p>完成时只保留事件记录，不生成单独交接摘要。</p>
+                    </article>
+                  )}
+                  <button
+                    className={handoffAction === 'continue' ? 'selected' : ''}
+                    onClick={() => setHandoffAction('continue')}
+                  >
+                    开新会话继续
+                  </button>
+                  {handoffAction && (handoffAction !== 'summary' || runtimeConfig.handoffSummary) && (
+                    <article className="handoff-confirmation" aria-live="polite">
+                      <strong>{handoffAction === 'summary' ? '阶段摘要已准备' : '后续会话已排队'}</strong>
+                      <p>
+                        {handoffAction === 'summary'
+                          ? '已把节点图、用户插话、分支选择和完成态整理成可交付摘要。'
+                          : '已保留本次运行上下文，下一轮会直接接续当前任务。'}
+                      </p>
+                      {handoffAction === 'summary' && (
+                        <ul>
+                          {handoffSummary.map((item) => <li key={item}>{item}</li>)}
+                        </ul>
+                      )}
+                    </article>
+                  )}
+                </>
               )}
             </section>
           </section>
