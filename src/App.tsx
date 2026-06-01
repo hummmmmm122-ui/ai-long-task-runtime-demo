@@ -58,6 +58,8 @@ function App() {
   const [extraMessages, setExtraMessages] = useState<ChatMessage[]>([]);
   const [pendingIntervention, setPendingIntervention] = useState('');
   const [nodeDecision, setNodeDecision] = useState<NodeDecision>('pending');
+  const [secondNodeReviewMode, setSecondNodeReviewMode] = useState<'pending' | 'later' | 'parallel' | 'confirmed'>('pending');
+  const [revisionMode, setRevisionMode] = useState<'none' | 'redo' | 'branch'>('none');
   const [selectedArtifact, setSelectedArtifact] = useState<ArtifactKey>('draft');
   const [appliedTemplate, setAppliedTemplate] = useState('长文档分析任务');
   const [topPanel, setTopPanel] = useState<TopPanel>(null);
@@ -175,6 +177,8 @@ function App() {
     setExtraMessages([]);
     setPendingIntervention('');
     setNodeDecision('pending');
+    setSecondNodeReviewMode('pending');
+    setRevisionMode('none');
     setSelectedArtifact('draft');
   };
 
@@ -184,6 +188,8 @@ function App() {
     setCueStep('interrupt');
     setSelectedId('draft');
     setSelectedEventId('draft');
+    setSecondNodeReviewMode('confirmed');
+    setRevisionMode('none');
     setOpenPanels((current) => ({ ...current, details: true }));
   };
 
@@ -193,6 +199,21 @@ function App() {
     setSelectedId('branch');
     setSelectedEventId('branch');
     setSelectedArtifact('checkpoint');
+    setRevisionMode('branch');
+    setOpenPanels((current) => ({ ...current, details: true }));
+  };
+
+  const rewindToPlan = () => {
+    setStage(1);
+    setSelectedId('plan');
+    setSelectedEventId('context');
+    setCueStep('interrupt');
+    setNodeDecision('needs-review');
+    setRevisionMode('redo');
+    setExtraMessages((messages) => [
+      ...messages,
+      { speaker: 'AI', text: '已按你的选择回退到“生成节点图”，我会基于新意见重做后续节点。' }
+    ]);
     setOpenPanels((current) => ({ ...current, details: true }));
   };
 
@@ -427,6 +448,32 @@ function App() {
               <span>{activeCue.title}</span>
               <p>{activeCue.body}</p>
               <b>{cueNumber}/4</b>
+            </section>
+
+            <section className="confirmation-arc" aria-label="节点确认剧情">
+              <article className="arc-card">
+                <span>第一节点确认</span>
+                <strong>{noteAccepted ? '已完成' : '待确认'}</strong>
+                <p>先只确认第一节点，避免一开始就把所有节点都摊给用户。</p>
+                <div className="arc-actions">
+                  <button type="button" onClick={acceptNote}>确认第一节点</button>
+                  <button type="button" onClick={() => setNodeDecision('needs-review')}>先提修改意见</button>
+                </div>
+              </article>
+              <article className="arc-card">
+                <span>第二节点处理方式</span>
+                <strong>
+                  {secondNodeReviewMode === 'pending' && '待决定'}
+                  {secondNodeReviewMode === 'later' && '稍后确认'}
+                  {secondNodeReviewMode === 'parallel' && '并行确认'}
+                  {secondNodeReviewMode === 'confirmed' && '已确认可直跑'}
+                </strong>
+                <p>如果第一节点耗时长，就允许用户在它运行时并行确认第二节点；否则先停一下等确认。</p>
+                <div className="arc-actions">
+                  <button type="button" onClick={() => setSecondNodeReviewMode('later')}>稍后查看再暂停</button>
+                  <button type="button" onClick={() => setSecondNodeReviewMode('parallel')}>现在并行确认</button>
+                </div>
+              </article>
             </section>
 
             <section className={`robot-scene ${branchOpened ? 'has-branch' : ''}`} aria-label="二维 AI 运行场景">
@@ -739,6 +786,19 @@ function App() {
                   先只记录为约束
                 </button>
               )}
+            </section>
+            <section className="revision-card" aria-label="已完成节点修改选择">
+              <span>修改已完成节点时</span>
+              <strong>
+                {revisionMode === 'none' && '还没选择处理路径'}
+                {revisionMode === 'redo' && '已选择回退重做'}
+                {revisionMode === 'branch' && '已选择保留当前版并开分支'}
+              </strong>
+              <p>这是 PRD 里最关键的二选一：要么舍弃当前结果回退重做，要么保留 V1 并把新意见放到 V2。</p>
+              <div className="branch-actions">
+                <button type="button" onClick={rewindToPlan}>回退到上一节点重做</button>
+                <button type="button" onClick={openBranch}>保留当前版并开分支</button>
+              </div>
             </section>
             <section className="message-list-wrap">
               <button className="collapse-toggle" type="button" onClick={() => togglePanel('history')}>

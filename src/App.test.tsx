@@ -90,6 +90,8 @@ describe('App runtime interactions', () => {
     expect(container.textContent).toContain('黑板思考');
     expect(container.textContent).toContain('工作台');
     expect(container.textContent).toContain('二楼分支');
+    expect(container.textContent).toContain('第一节点确认');
+    expect(container.textContent).toContain('第二节点处理方式');
     expect(container.textContent).toContain('运行细节');
     expect(container.textContent).toContain('展开');
     expect(container.textContent).not.toContain('当前执行链路');
@@ -116,6 +118,7 @@ describe('App runtime interactions', () => {
     expect(container.textContent).toContain('V2 正在试跑新意见');
     expect(container.textContent).toContain('V1 / V2 对比');
     expect(container.textContent).toContain('V1 / V2 checkpoint');
+    expect(container.textContent).toContain('已选择保留当前版并开分支');
 
     clickButton('继续执行');
     clickButton('继续执行');
@@ -245,6 +248,18 @@ describe('App runtime interactions', () => {
     clickButton('继续执行');
     clickButton('准备交付');
     expect(container.textContent).toContain('后续会话已排队');
+  });
+
+  it('supports rewind or branching when revising completed nodes', () => {
+    renderApp();
+
+    clickButton('回退到上一节点重做');
+    expect(container.textContent).toContain('已选择回退重做');
+    expect(container.textContent).toContain('生成节点图');
+
+    clickButton('保留当前版并开分支');
+    expect(container.textContent).toContain('已选择保留当前版并开分支');
+    expect(container.textContent).toContain('V2 正在试跑新意见');
   });
 
   it('uses top search and notifications as working command surfaces', () => {
