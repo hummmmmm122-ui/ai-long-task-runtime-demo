@@ -40,6 +40,21 @@ function clickButton(name: string) {
   });
 }
 
+function typeInInput(value: string) {
+  const input = container.querySelector('input');
+
+  if (!input) {
+    throw new Error('Missing input');
+  }
+
+  act(() => {
+    const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
+    setter?.call(input, value);
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+  });
+}
+
 function fillIntervention(value: string) {
   const textarea = container.querySelector('textarea');
 
@@ -165,5 +180,24 @@ describe('App runtime interactions', () => {
     expect(container.textContent).not.toContain('临时介入');
     expect(container.textContent).not.toContain('保留并开分支');
     expect(container.textContent).not.toContain('生成阶段摘要');
+  });
+
+  it('uses top search and notifications as working command surfaces', () => {
+    renderApp();
+
+    clickButton('⌕');
+    expect(container.textContent).toContain('快速定位');
+    typeInInput('资源');
+    clickButton('资源库');
+    expect(container.textContent).toContain('资源库');
+    expect(container.textContent).toContain('方案草稿.md');
+
+    clickButton('⚙');
+    clickButton('允许用户随时插话');
+    clickButton('回到运行台');
+    clickButton('◌');
+    expect(container.textContent).toContain('运行提醒');
+    expect(container.textContent).toContain('用户插话入口收起');
+    expect(container.textContent).toContain('当前节点等待确认');
   });
 });

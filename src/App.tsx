@@ -31,6 +31,8 @@ type RuntimeConfig = {
   handoffSummary: boolean;
 };
 
+type TopPanel = 'search' | 'notifications' | null;
+
 function App() {
   const [workspaceView, setWorkspaceView] = useState<WorkspaceView>('task');
   const [selectedId, setSelectedId] = useState(initialSelectedId);
@@ -46,6 +48,8 @@ function App() {
   const [nodeDecision, setNodeDecision] = useState<NodeDecision>('pending');
   const [selectedArtifact, setSelectedArtifact] = useState<ArtifactKey>('draft');
   const [appliedTemplate, setAppliedTemplate] = useState('长文档分析任务');
+  const [topPanel, setTopPanel] = useState<TopPanel>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const [runtimeConfig, setRuntimeConfig] = useState<RuntimeConfig>({
     rhythm: 'balanced',
     userInterrupt: true,
@@ -68,6 +72,65 @@ function App() {
   const handoffSummary = getHandoffSummary(nodeDecision, extraMessages.some((message) => message.speaker === 'User'), branchOpened, isComplete);
 
   const selectedEvent = runtimeEvents.find((event) => event.id === selectedEventId) ?? runtimeEvents[0];
+  const rhythmLabel = runtimeConfig.rhythm === 'safe' ? '稳妥确认' : runtimeConfig.rhythm === 'fast' ? '快速推进' : '平衡推进';
+  const searchItems = [
+    ...nodes.map((node) => ({
+      id: `node-${node.id}`,
+      title: node.title,
+      meta: `节点 · ${statusLabel(node.status)}`,
+      action: () => {
+        setWorkspaceView('task');
+        setSelectedId(node.id);
+      }
+    })),
+    {
+      id: 'queue',
+      title: '运行队列',
+      meta: '队列 · 多任务状态',
+      action: () => setWorkspaceView('queue')
+    },
+    {
+      id: 'templates',
+      title: '模板库',
+      meta: `模板 · 当前 ${appliedTemplate}`,
+      action: () => setWorkspaceView('templates')
+    },
+    {
+      id: 'resources',
+      title: '资源库',
+      meta: '产物 · artifact / checkpoint',
+      action: () => setWorkspaceView('resources')
+    },
+    {
+      id: 'settings',
+      title: '运行设置',
+      meta: `护栏 · ${rhythmLabel}`,
+      action: () => setWorkspaceView('settings')
+    }
+  ];
+  const filteredSearchItems = searchItems.filter((item) => {
+    const query = searchQuery.trim().toLowerCase();
+
+    if (!query) {
+      return true;
+    }
+
+    return `${item.title} ${item.meta}`.toLowerCase().includes(query);
+  });
+  const notifications = [
+    {
+      title: nodeDecision === 'needs-review' ? '当前节点需要复核' : '当前节点等待确认',
+      body: `${selectedNode.title} · ${decisionLabel[nodeDecision]}`
+    },
+    {
+      title: branchOpened ? 'V2 分支正在运行' : runtimeConfig.autoBranch ? '分支护栏已开启' : '分支护栏已关闭',
+      body: branchOpened ? '已保留 V1，并开启 V2 路径。' : runtimeConfig.autoBranch ? '用户修改会优先保留版本分支。' : '修改会直接写入主任务。'
+    },
+    {
+      title: runtimeConfig.userInterrupt ? '用户插话入口开放' : '用户插话入口收起',
+      body: runtimeConfig.userInterrupt ? '临时意见可以挂到当前节点。' : '任务将按确认节奏继续推进。'
+    }
+  ];
 
   const resetTask = () => {
     setStage(initialStage);
@@ -195,11 +258,40 @@ function App() {
             ))}
           </div>
           <div className="top-actions">
-            <button className="icon-button" title="搜索" aria-label="搜索">⌕</button>
-            <button className="icon-button" title="通知" aria-label="通知">◌</button>
+            <button
+              className={`icon-button ${topPanel === 'search' ? 'active' : ''}`}
+              title="搜索"
+              aria-label="搜索"
+              onClick={() => setTopPanel((panel) => (panel === 'search' ? null : 'search'))}
+            >
+              ⌕
+            </button>
+            <button
+              className={`icon-button ${topPanel === 'notifications' ? 'active' : ''}`}
+              title="通知"
+              aria-label="通知"
+              onClick={() => setTopPanel((panel) => (panel === 'notifications' ? null : 'notifications'))}
+            >
+              ◌
+            </button>
             <button className="execute-button" onClick={advance}>▶ 继续执行</button>
           </div>
         </header>
+
+        {topPanel && (
+          <TopCommandPanel
+            filteredSearchItems={filteredSearchItems}
+            notifications={notifications}
+            onClose={() => setTopPanel(null)}
+            onSelectSearchItem={(action) => {
+              action();
+              setTopPanel(null);
+            }}
+            panel={topPanel}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+          />
+        )}
 
         {workspaceView === 'queue' ? (
           <QueueView
@@ -644,6 +736,70 @@ function QueueView({
           )}
         </aside>
       </section>
+    </section>
+  );
+}
+
+function TopCommandPanel({
+  filteredSearchItems,
+  notifications,
+  onClose,
+  onSelectSearchItem,
+  panel,
+  searchQuery,
+  setSearchQuery
+}: {
+  filteredSearchItems: Array<{ id: string; title: string; meta: string; action: () => void }>;
+  notifications: Array<{ title: string; body: string }>;
+  onClose: () => void;
+  onSelectSearchItem: (action: () => void) => void;
+  panel: Exclude<TopPanel, null>;
+  searchQuery: string;
+  setSearchQuery: (value: string) => void;
+}) {
+  return (
+    <section className="top-command-panel" aria-label={panel === 'search' ? '搜索面板' : '通知面板'}>
+      <header>
+        <div>
+          <span>{panel === 'search' ? 'COMMAND SEARCH' : 'RUNTIME NOTICES'}</span>
+          <strong>{panel === 'search' ? '快速定位' : '运行提醒'}</strong>
+        </div>
+        <button type="button" onClick={onClose}>关闭</button>
+      </header>
+
+      {panel === 'search' ? (
+        <>
+          <input
+            autoFocus
+            onChange={(event) => setSearchQuery(event.target.value)}
+            placeholder="搜索节点、队列、模板、资源或设置"
+            value={searchQuery}
+          />
+          <div className="command-results">
+            {filteredSearchItems.map((item) => (
+              <button key={item.id} onClick={() => onSelectSearchItem(item.action)} type="button">
+                <strong>{item.title}</strong>
+                <span>{item.meta}</span>
+              </button>
+            ))}
+            {filteredSearchItems.length === 0 && (
+              <article>
+                <strong>没有匹配结果</strong>
+                <span>换一个关键词试试，比如“节点”“队列”或“设置”。</span>
+              </article>
+            )}
+          </div>
+        </>
+      ) : (
+        <div className="notice-list">
+          {notifications.map((notice) => (
+            <article key={notice.title}>
+              <strong>{notice.title}</strong>
+              <p>{notice.body}</p>
+            </article>
+          ))}
+        </div>
+      )}
     </section>
   );
 }

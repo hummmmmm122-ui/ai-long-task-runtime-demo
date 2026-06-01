@@ -209,6 +209,13 @@ button {
   font-size: 18px;
 }
 
+.icon-button.active,
+.icon-button:hover {
+  border-color: rgba(79, 224, 202, 0.4);
+  color: var(--teal);
+  background: rgba(79, 224, 202, 0.08);
+}
+
 .execute-button {
   height: 34px;
   border-radius: 7px;
@@ -216,6 +223,111 @@ button {
   color: var(--ink);
   background: var(--teal);
   font-weight: 800;
+}
+
+.top-command-panel {
+  position: absolute;
+  z-index: 8;
+  top: 72px;
+  right: 20px;
+  width: min(430px, calc(100vw - 96px));
+  max-height: calc(100dvh - 96px);
+  overflow: auto;
+  border: 1px solid rgba(79, 224, 202, 0.28);
+  border-radius: 12px;
+  padding: 14px;
+  background:
+    linear-gradient(155deg, rgba(79, 224, 202, 0.12), rgba(23, 27, 24, 0.96) 44%),
+    var(--panel);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.42);
+}
+
+.top-command-panel header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.top-command-panel header span {
+  color: var(--teal);
+  font-family: "Cascadia Mono", Consolas, monospace;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.top-command-panel header strong {
+  display: block;
+  margin-top: 3px;
+  color: var(--text);
+  font-size: 17px;
+}
+
+.top-command-panel header button {
+  min-height: 28px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 0 10px;
+  color: var(--text);
+  background: var(--panel-2);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.top-command-panel input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 11px;
+  color: var(--text);
+  background: var(--bg);
+  font: inherit;
+  font-size: 13px;
+}
+
+.top-command-panel input:focus {
+  outline: 1px solid rgba(79, 224, 202, 0.5);
+  border-color: rgba(79, 224, 202, 0.5);
+}
+
+.command-results,
+.notice-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.command-results button,
+.command-results article,
+.notice-list article {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+  background: rgba(237, 243, 236, 0.04);
+  text-align: left;
+}
+
+.command-results button:hover {
+  border-color: rgba(79, 224, 202, 0.38);
+  background: rgba(79, 224, 202, 0.08);
+}
+
+.command-results strong,
+.notice-list strong {
+  display: block;
+  color: var(--text);
+  font-size: 13px;
+}
+
+.command-results span,
+.notice-list p {
+  display: block;
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 .stage {
@@ -1575,6 +1687,14 @@ button {
   .topbar {
     gap: 14px;
     padding: 16px;
+  }
+
+  .top-command-panel {
+    position: fixed;
+    top: 74px;
+    right: 12px;
+    left: 66px;
+    width: auto;
   }
 
   .main-panel {
