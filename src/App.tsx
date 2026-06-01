@@ -426,35 +426,53 @@ function App() {
               <p>“第二节点不要再次阻塞确认，用户可以稍后查看；如果已经确认就自动接着跑。”</p>
               <div className="branch-actions">
                 <button onClick={acceptNote}>采纳到当前节点</button>
-                <button onClick={openBranch}>保留并开分支</button>
+                {runtimeConfig.autoBranch ? (
+                  <button onClick={openBranch}>保留并开分支</button>
+                ) : (
+                  <em>当前策略：直接写入主任务，不自动开启分支</em>
+                )}
               </div>
             </section>
-            <form className="intervention-form" onSubmit={submitIntervention}>
-              <label htmlFor="intervention">临时介入</label>
-              <textarea
-                id="intervention"
-                value={interventionText}
-                onChange={(event) => setInterventionText(event.target.value)}
-                placeholder="补充一个约束，或要求从当前节点开分支..."
-                rows={3}
-              />
-              <button type="submit">发送到当前节点</button>
-            </form>
+            {runtimeConfig.userInterrupt ? (
+              <form className="intervention-form" onSubmit={submitIntervention}>
+                <label htmlFor="intervention">临时介入</label>
+                <textarea
+                  id="intervention"
+                  value={interventionText}
+                  onChange={(event) => setInterventionText(event.target.value)}
+                  placeholder="补充一个约束，或要求从当前节点开分支..."
+                  rows={3}
+                />
+                <button type="submit">发送到当前节点</button>
+              </form>
+            ) : (
+              <section className="policy-note">
+                <span>插话入口已收起</span>
+                <p>当前运行设置关闭了用户随时插话，任务会按节点确认节奏继续推进。</p>
+              </section>
+            )}
             <section className="next-actions">
               <span>完成后的下一步</span>
-              <button
-                className={handoffAction === 'summary' ? 'selected' : ''}
-                onClick={() => setHandoffAction('summary')}
-              >
-                生成阶段摘要
-              </button>
+              {runtimeConfig.handoffSummary ? (
+                <button
+                  className={handoffAction === 'summary' ? 'selected' : ''}
+                  onClick={() => setHandoffAction('summary')}
+                >
+                  生成阶段摘要
+                </button>
+              ) : (
+                <article className="policy-note compact">
+                  <span>阶段摘要已关闭</span>
+                  <p>完成时只保留事件记录，不生成单独交接摘要。</p>
+                </article>
+              )}
               <button
                 className={handoffAction === 'continue' ? 'selected' : ''}
                 onClick={() => setHandoffAction('continue')}
               >
                 开新会话继续
               </button>
-              {handoffAction && (
+              {handoffAction && (handoffAction !== 'summary' || runtimeConfig.handoffSummary) && (
                 <article className="handoff-confirmation" aria-live="polite">
                   <strong>{handoffAction === 'summary' ? '阶段摘要已准备' : '后续会话已排队'}</strong>
                   <p>

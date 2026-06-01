@@ -143,4 +143,21 @@ describe('App runtime interactions', () => {
     clickButton('回到运行台');
     expect(container.textContent).toContain('当前模板：多轮方案生成 · 稳妥确认');
   });
+
+  it('uses runtime settings as behavior guardrails in the task workspace', () => {
+    renderApp();
+
+    clickButton('⚙');
+    clickButton('允许用户随时插话');
+    clickButton('修改默认保留分支');
+    clickButton('交接时生成阶段摘要');
+    clickButton('回到运行台');
+
+    expect(container.textContent).toContain('插话入口已收起');
+    expect(container.textContent).toContain('当前策略：直接写入主任务，不自动开启分支');
+    expect(container.textContent).toContain('阶段摘要已关闭');
+    expect(container.textContent).not.toContain('临时介入');
+    expect(container.textContent).not.toContain('保留并开分支');
+    expect(container.textContent).not.toContain('生成阶段摘要');
+  });
 });
