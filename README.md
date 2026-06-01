@@ -10,6 +10,10 @@ Demo 不追求完整后端能力，重点是把“等待过程重构”这件事
 
 [打开在线 Demo](https://hummmmmm122-ui.github.io/ai-long-task-runtime-demo/)
 
+![AI 长任务等待态 Demo 预览](docs/preview.png)
+
+预览图展示的是默认演示入口：AI 正在执行 `生成方案` 节点，用户可以在右侧分支聊天中选择采纳意见或保留当前版本后开启新分支。
+
 本地快速启动：
 
 ```bash
