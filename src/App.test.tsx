@@ -104,7 +104,9 @@ describe('App runtime interactions', () => {
     clickButton('进入第一节点确认');
     clickButton('先提修改意见');
     expect(container.textContent).toContain('修改第一节点');
-    clickButton('返回第一节点确认');
+    fillIntervention('第一节点先确认任务边界和等待焦虑');
+    clickButton('保存这一节点修改');
+    expect(container.textContent).toContain('请先确认第一节点');
     clickButton('确认第一节点');
     clickButton('现在并行确认');
     clickButton('标记需复核');

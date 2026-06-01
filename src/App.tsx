@@ -56,6 +56,7 @@ function App() {
   const [handoffAction, setHandoffAction] = useState<HandoffAction>(null);
   const [selectedEventId, setSelectedEventId] = useState(initialEventId);
   const [interventionText, setInterventionText] = useState('');
+  const [firstNodeDraft, setFirstNodeDraft] = useState('把第一节点理解得更像“先确认任务边界和用户等待焦虑”，不要一开始就展开所有节点。');
   const [extraMessages, setExtraMessages] = useState<ChatMessage[]>([]);
   const [pendingIntervention, setPendingIntervention] = useState('');
   const [nodeDecision, setNodeDecision] = useState<NodeDecision>('pending');
@@ -175,6 +176,7 @@ function App() {
     setHandoffAction(null);
     setSelectedEventId(initialEventId);
     setInterventionText('');
+    setFirstNodeDraft('把第一节点理解得更像“先确认任务边界和用户等待焦虑”，不要一开始就展开所有节点。');
     setExtraMessages([]);
     setPendingIntervention('');
     setNodeDecision('pending');
@@ -300,6 +302,22 @@ function App() {
     setAppliedTemplate(template.title);
     setRuntimeConfig(template.config);
     setTopPanel(null);
+  };
+
+  const saveFirstNodeRevision = () => {
+    const trimmed = firstNodeDraft.trim();
+
+    if (!trimmed) {
+      return;
+    }
+
+    setExtraMessages((messages) => [
+      ...messages,
+      { speaker: 'User', text: `我修改了第一节点：${trimmed}` },
+      { speaker: 'AI', text: '已记录第一节点修改。我会先按这条理解重写第一节点，再回到确认。' }
+    ]);
+    setNodeDecision('needs-review');
+    setStoryStep('confirm-first');
   };
 
   return (
@@ -495,8 +513,16 @@ function App() {
                 <span>修改第一节点</span>
                 <strong>先在第一节点本地改清楚，再决定要不要继续往后展开</strong>
                 <p>这里不直接跳去分支式聊天。你可以先修改第一节点理解，再回到确认，或者继续进入第二节点。</p>
+                <textarea
+                  className="inline-step-editor"
+                  value={firstNodeDraft}
+                  onChange={(event) => setFirstNodeDraft(event.target.value)}
+                  placeholder="补充第一节点应该怎么理解、问什么、先确认什么..."
+                  rows={4}
+                />
                 <div className="arc-actions">
                   <button type="button" onClick={() => setStoryStep('confirm-first')}>返回第一节点确认</button>
+                  <button type="button" onClick={saveFirstNodeRevision}>保存这一节点修改</button>
                   <button type="button" onClick={() => setStoryStep('confirm-second')}>带着修改进入第二节点</button>
                 </div>
               </section>

@@ -1051,6 +1051,26 @@ button {
   font-weight: 900;
 }
 
+.inline-step-editor {
+  width: 100%;
+  margin-top: 14px;
+  resize: vertical;
+  min-height: 92px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px;
+  color: var(--text);
+  background: rgba(7, 17, 15, 0.7);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.inline-step-editor:focus {
+  outline: 1px solid rgba(79, 224, 202, 0.46);
+  border-color: rgba(79, 224, 202, 0.46);
+}
+
 .arc-card,
 .revision-card {
   border: 1px solid rgba(79, 224, 202, 0.18);
