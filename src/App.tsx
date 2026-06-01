@@ -31,6 +31,16 @@ type RuntimeConfig = {
   handoffSummary: boolean;
 };
 
+type TemplatePreset = {
+  id: string;
+  title: string;
+  fit: string;
+  nodes: string;
+  intervention: string;
+  branch: string;
+  config: RuntimeConfig;
+};
+
 type TopPanel = 'search' | 'notifications' | null;
 
 function App() {
@@ -193,6 +203,12 @@ function App() {
     setCueStep('interrupt');
   };
 
+  const applyTemplatePreset = (template: TemplatePreset) => {
+    setAppliedTemplate(template.title);
+    setRuntimeConfig(template.config);
+    setTopPanel(null);
+  };
+
   return (
     <main className={`workbench ${fullscreen ? 'is-focus' : ''}`}>
       <aside className="rail" aria-label="主导航">
@@ -304,7 +320,7 @@ function App() {
         ) : workspaceView === 'templates' ? (
           <TemplateView
             appliedTemplate={appliedTemplate}
-            onApplyTemplate={setAppliedTemplate}
+            onApplyTemplate={applyTemplatePreset}
             onOpenTask={() => setWorkspaceView('task')}
           />
         ) : workspaceView === 'resources' ? (
@@ -810,17 +826,23 @@ function TemplateView({
   onOpenTask
 }: {
   appliedTemplate: string;
-  onApplyTemplate: (templateName: string) => void;
+  onApplyTemplate: (template: TemplatePreset) => void;
   onOpenTask: () => void;
 }) {
-  const templates = [
+  const templates: TemplatePreset[] = [
     {
       id: 'TPL-LONGDOC',
       title: '长文档分析任务',
       fit: '适合 PRD、合同、研究报告这类需要多轮阅读和阶段确认的任务。',
       nodes: '读取资料 / 提取结构 / 生成草稿 / 用户复核 / 交付建议',
       intervention: '每个关键节点都保留用户插话入口',
-      branch: '复核意见默认进入 V2 分支，不覆盖当前版本'
+      branch: '复核意见默认进入 V2 分支，不覆盖当前版本',
+      config: {
+        rhythm: 'safe',
+        userInterrupt: true,
+        autoBranch: true,
+        handoffSummary: true
+      }
     },
     {
       id: 'TPL-CREATIVE',
@@ -828,7 +850,13 @@ function TemplateView({
       fit: '适合品牌方案、页面文案、产品命名等需要保留多个方向的任务。',
       nodes: '理解目标 / 生成方向 / 对比方案 / 采纳修改 / 整理输出',
       intervention: 'AI 主动询问偏好，不强制等待',
-      branch: '被保留的方向会变成可继续运行的分支'
+      branch: '被保留的方向会变成可继续运行的分支',
+      config: {
+        rhythm: 'fast',
+        userInterrupt: true,
+        autoBranch: true,
+        handoffSummary: true
+      }
     },
     {
       id: 'TPL-RESEARCH',
@@ -836,7 +864,13 @@ function TemplateView({
       fit: '适合竞品调研、资料汇总、引用校验和结论提炼。',
       nodes: '收集来源 / 聚类信息 / 校验引用 / 形成摘要 / 列出缺口',
       intervention: '缺少来源时进入等待介入状态',
-      branch: '可以把补充资料开启为新的子任务'
+      branch: '可以把补充资料开启为新的子任务',
+      config: {
+        rhythm: 'balanced',
+        userInterrupt: false,
+        autoBranch: false,
+        handoffSummary: true
+      }
     }
   ];
 
@@ -870,11 +904,19 @@ function TemplateView({
                 <dt>分支策略</dt>
                 <dd>{template.branch}</dd>
               </div>
+              <div>
+                <dt>运行策略</dt>
+                <dd>
+                  {template.config.rhythm === 'safe' ? '稳妥确认' : template.config.rhythm === 'fast' ? '快速推进' : '平衡推进'} ·
+                  {template.config.userInterrupt ? ' 保留插话' : ' 收起插话'} ·
+                  {template.config.autoBranch ? ' 自动分支' : ' 直接写入'}
+                </dd>
+              </div>
             </dl>
             <button
               className={appliedTemplate === template.title ? 'selected' : ''}
               type="button"
-              onClick={() => onApplyTemplate(template.title)}
+              onClick={() => onApplyTemplate(template)}
             >
               {appliedTemplate === template.title ? '已套用' : '套用模板'}
             </button>

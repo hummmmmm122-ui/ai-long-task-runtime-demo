@@ -40,6 +40,19 @@ function clickButton(name: string) {
   });
 }
 
+function applyTemplate(title: string) {
+  const card = Array.from(container.querySelectorAll('.template-card')).find((element) => element.textContent?.includes(title));
+  const button = card?.querySelector('button');
+
+  if (!button) {
+    throw new Error(`Missing template button: ${title}`);
+  }
+
+  act(() => {
+    button.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+  });
+}
+
 function typeInInput(value: string) {
   const input = container.querySelector('input');
 
@@ -149,6 +162,32 @@ describe('App runtime interactions', () => {
   });
 
   it('applies a template and updates runtime settings', () => {
+    renderApp();
+
+    clickButton('▤');
+    applyTemplate('调研摘要工作流');
+    expect(container.textContent).toContain('已套用');
+    expect(container.textContent).toContain('平衡推进 · 收起插话 · 直接写入');
+
+    clickButton('⚙');
+    expect(container.textContent).toContain('运行设置');
+    expect(container.textContent).toContain('用户插话入口会被收起');
+    expect(container.textContent).toContain('采纳修改时直接覆盖当前草稿');
+
+    clickButton('稳妥确认');
+    clickButton('修改默认保留分支');
+    clickButton('允许用户随时插话');
+    clickButton('回到运行台');
+    expect(container.textContent).toContain('当前模板：调研摘要工作流 · 稳妥确认');
+    expect(container.textContent).toContain('临时介入');
+
+    clickButton('▤');
+    applyTemplate('多轮方案生成');
+    clickButton('回到当前任务');
+    expect(container.textContent).toContain('当前模板：多轮方案生成 · 快速推进');
+  });
+
+  it('allows manual runtime settings after applying a template', () => {
     renderApp();
 
     clickButton('▤');
