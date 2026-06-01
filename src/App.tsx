@@ -6,6 +6,8 @@ type RuntimeStep = 'observe' | 'interrupt' | 'branch' | 'handoff';
 type HandoffAction = 'summary' | 'continue' | null;
 type MessageSpeaker = 'AI' | 'User';
 type RuntimeEventState = 'done' | 'running' | 'branch';
+type NodeDecision = 'pending' | 'confirmed' | 'needs-review';
+type ArtifactKey = 'draft' | 'checkpoint';
 
 interface WorkflowNode {
   id: string;
@@ -157,6 +159,8 @@ function App() {
   const [selectedEventId, setSelectedEventId] = useState(initialEventId);
   const [interventionText, setInterventionText] = useState('');
   const [extraMessages, setExtraMessages] = useState<ChatMessage[]>([]);
+  const [nodeDecision, setNodeDecision] = useState<NodeDecision>('pending');
+  const [selectedArtifact, setSelectedArtifact] = useState<ArtifactKey>('draft');
 
   const nodes = useMemo<WorkflowNode[]>(
     () =>
@@ -195,6 +199,28 @@ function App() {
   const cueNumber = cueOrder.indexOf(cueStep) + 1;
   const isComplete = stage >= nodes.length - 1;
   const visibleMessages = [...sideMessages, ...extraMessages];
+  const decisionLabel: Record<NodeDecision, string> = {
+    pending: '等待确认',
+    confirmed: '节点已确认',
+    'needs-review': '需人工复核'
+  };
+  const artifacts: Record<ArtifactKey, { title: string; label: string; summary: string; preview: string[] }> = {
+    draft: {
+      title: '方案草稿.md',
+      label: '主方案草稿',
+      summary: '当前节点正在生成的阶段性方案，不必等最终输出即可预览方向。',
+      preview: ['保留主任务继续执行', '把用户偏好写入确认策略', '下一步进入风险校验和交付建议']
+    },
+    checkpoint: {
+      title: branchOpened ? 'V1 / V2 checkpoint' : '确认策略 checkpoint',
+      label: branchOpened ? '版本检查点' : '确认检查点',
+      summary: branchOpened ? '系统已保留 V1，并把新意见写入 V2 分支。' : '当前检查点等待用户决定是否跳过二次阻塞。',
+      preview: branchOpened
+        ? ['V1：维持再次确认', 'V2：已确认节点自动继续', '差异：等待成本下降，回看责任上升']
+        : ['待确认：是否继续阻塞用户', '可选动作：采纳偏好或创建分支', '影响：后续节点执行节奏']
+    }
+  };
+  const currentArtifact = artifacts[selectedArtifact];
   const runtimeEvents: RuntimeEvent[] = [
     {
       id: 'intent',
@@ -252,10 +278,13 @@ function App() {
     setSelectedEventId(initialEventId);
     setInterventionText('');
     setExtraMessages([]);
+    setNodeDecision('pending');
+    setSelectedArtifact('draft');
   };
 
   const acceptNote = () => {
     setNoteAccepted(true);
+    setNodeDecision('confirmed');
     setCueStep('interrupt');
     setSelectedId('draft');
     setSelectedEventId('draft');
@@ -266,6 +295,7 @@ function App() {
     setCueStep('branch');
     setSelectedId('branch');
     setSelectedEventId('branch');
+    setSelectedArtifact('checkpoint');
   };
 
   const advance = () => {
@@ -293,6 +323,7 @@ function App() {
       { speaker: 'User', text: trimmed },
       { speaker: 'AI', text: '收到，我会把这条介入意见挂到当前节点，不暂停主任务。你可以选择采纳或开分支。' }
     ]);
+    setNodeDecision('needs-review');
     setInterventionText('');
     setCueStep('interrupt');
   };
@@ -386,14 +417,22 @@ function App() {
                 </article>
 
                 <div className="runtime-artifacts">
-                  <article>
+                  <button
+                    className={selectedArtifact === 'draft' ? 'selected' : ''}
+                    onClick={() => setSelectedArtifact('draft')}
+                    aria-label="查看方案草稿"
+                  >
                     <span>artifact</span>
                     <strong>方案草稿.md</strong>
-                  </article>
-                  <article>
+                  </button>
+                  <button
+                    className={selectedArtifact === 'checkpoint' ? 'selected' : ''}
+                    onClick={() => setSelectedArtifact('checkpoint')}
+                    aria-label="查看检查点"
+                  >
                     <span>checkpoint</span>
                     <strong>{branchOpened ? 'V1 / V2 可比较' : '等待确认'}</strong>
-                  </article>
+                  </button>
                 </div>
               </section>
 
@@ -412,6 +451,29 @@ function App() {
                 </div>
                 <h3>风险提示</h3>
                 <p className="risk-copy">{selectedNode.risk}</p>
+                <section className={`node-decision node-decision-${nodeDecision}`} aria-label="节点决策">
+                  <span>节点决策</span>
+                  <strong>{decisionLabel[nodeDecision]}</strong>
+                  <p>
+                    {nodeDecision === 'confirmed'
+                      ? '当前节点已被用户确认，主任务可以继续进入后续节点。'
+                      : nodeDecision === 'needs-review'
+                        ? '用户新增了临时介入意见，建议复核后再写入主方案或开新分支。'
+                        : '当前节点仍在等待用户确认，可直接确认，也可以标记为需复核。'}
+                  </p>
+                  <div>
+                    <button onClick={() => setNodeDecision('confirmed')}>确认当前节点</button>
+                    <button onClick={() => setNodeDecision('needs-review')}>标记需复核</button>
+                  </div>
+                </section>
+                <section className="artifact-preview" aria-label="产物详情">
+                  <span>{currentArtifact.label}</span>
+                  <h3>{currentArtifact.title}</h3>
+                  <p>{currentArtifact.summary}</p>
+                  <ul>
+                    {currentArtifact.preview.map((item) => <li key={item}>{item}</li>)}
+                  </ul>
+                </section>
                 {branchOpened && (
                   <section className="version-compare" aria-label="分支版本对比">
                     <h3>V1 / V2 对比</h3>
@@ -437,7 +499,7 @@ function App() {
               </article>
               <article className={noteAccepted ? 'is-hot' : ''}>
                 <span>用户介入</span>
-                <strong>{noteAccepted ? '已采纳' : '等待确认'}</strong>
+                <strong>{decisionLabel[nodeDecision]}</strong>
               </article>
               <article className={branchOpened ? 'is-hot is-branch' : ''}>
                 <span>分支任务</span>
