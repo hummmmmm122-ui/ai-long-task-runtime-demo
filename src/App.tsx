@@ -449,7 +449,10 @@ function QueueView({
       node: currentNodeTitle,
       progress: Math.round(progress),
       attention: nodeDecision === 'needs-review' ? '需要人工复核' : '等待确认策略',
-      updatedAt: '刚刚'
+      updatedAt: '刚刚',
+      artifact: branchOpened ? 'V1 / V2 checkpoint' : '方案草稿.md',
+      nextAction: '进入运行台处理当前节点',
+      detail: '当前任务正在验证可观察、可介入、可分支的长任务 runtime 体验。'
     },
     {
       id: 'TASK-B18C',
@@ -458,7 +461,10 @@ function QueueView({
       node: '校验引用',
       progress: 62,
       attention: '缺少产品边界说明',
-      updatedAt: '4 分钟前'
+      updatedAt: '4 分钟前',
+      artifact: '引用缺口清单.csv',
+      nextAction: '补充产品边界后继续生成',
+      detail: 'AI 已完成知识库聚类，但在引用校验阶段发现部分问答缺少来源，需要用户确认产品边界。'
     },
     {
       id: 'TASK-C77D',
@@ -467,9 +473,14 @@ function QueueView({
       node: '等待资料补充',
       progress: 38,
       attention: '用户稍后补充链接',
-      updatedAt: '12 分钟前'
+      updatedAt: '12 分钟前',
+      artifact: '竞品观察草稿.md',
+      nextAction: '等待新增竞品链接',
+      detail: '任务已保留当前调研草稿，等待用户补充竞品链接后继续生成对比摘要。'
     }
   ];
+  const [selectedQueueId, setSelectedQueueId] = useState(queueItems[0].id);
+  const selectedQueueItem = queueItems.find((item) => item.id === selectedQueueId) ?? queueItems[0];
 
   return (
     <section className="queue-workspace" aria-label="运行队列">
@@ -482,9 +493,10 @@ function QueueView({
         <button onClick={onOpenTask}>打开当前任务</button>
       </header>
 
-      <section className="queue-grid">
-        {queueItems.map((item) => (
-          <article className={`queue-card queue-card-${item.status}`} key={item.id}>
+      <section className="queue-layout">
+        <div className="queue-grid">
+          {queueItems.map((item) => (
+          <article className={`queue-card queue-card-${item.status} ${item.id === selectedQueueItem.id ? 'selected' : ''}`} key={item.id}>
             <header>
               <span>{item.id}</span>
               <strong>{item.status}</strong>
@@ -498,9 +510,39 @@ function QueueView({
               <span>{item.attention}</span>
               <em>{item.updatedAt}</em>
             </footer>
-            {item.id === 'TASK-A94B' && <button onClick={onOpenTask}>进入运行台</button>}
+            <button onClick={() => setSelectedQueueId(item.id)}>查看{item.title}</button>
           </article>
-        ))}
+          ))}
+        </div>
+
+        <aside className="queue-detail" aria-label="队列任务详情">
+          <span>{selectedQueueItem.id}</span>
+          <h3>{selectedQueueItem.title}</h3>
+          <p>{selectedQueueItem.detail}</p>
+          <dl>
+            <div>
+              <dt>当前节点</dt>
+              <dd>{selectedQueueItem.node}</dd>
+            </div>
+            <div>
+              <dt>介入需求</dt>
+              <dd>{selectedQueueItem.attention}</dd>
+            </div>
+            <div>
+              <dt>当前产物</dt>
+              <dd>{selectedQueueItem.artifact}</dd>
+            </div>
+            <div>
+              <dt>下一步</dt>
+              <dd>{selectedQueueItem.nextAction}</dd>
+            </div>
+          </dl>
+          {selectedQueueItem.id === 'TASK-A94B' ? (
+            <button onClick={onOpenTask}>进入运行台</button>
+          ) : (
+            <button type="button">标记稍后处理</button>
+          )}
+        </aside>
       </section>
     </section>
   );

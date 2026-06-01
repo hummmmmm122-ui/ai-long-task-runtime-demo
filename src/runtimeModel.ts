@@ -54,6 +54,9 @@ export interface QueueItem {
   progress: number;
   attention: string;
   updatedAt: string;
+  artifact: string;
+  nextAction: string;
+  detail: string;
 }
 
 export const initialStage = 2;

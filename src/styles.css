@@ -273,11 +273,17 @@ button {
   font-weight: 900;
 }
 
-.queue-grid {
+.queue-layout {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr) 340px;
   gap: 16px;
   margin-top: 18px;
+}
+
+.queue-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
 }
 
 .queue-card {
@@ -287,6 +293,12 @@ button {
   border-radius: 10px;
   padding: 18px;
   background: rgba(23, 27, 24, 0.94);
+}
+
+.queue-card:hover,
+.queue-card.selected {
+  border-color: rgba(79, 224, 202, 0.42);
+  background: rgba(79, 224, 202, 0.07);
 }
 
 .queue-card header,
@@ -350,6 +362,72 @@ button {
 
 .queue-card-已暂停 {
   opacity: 0.72;
+}
+
+.queue-detail {
+  align-self: start;
+  position: sticky;
+  top: 18px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 18px;
+  background: var(--panel);
+}
+
+.queue-detail > span {
+  color: var(--teal);
+  font-family: "Cascadia Mono", Consolas, monospace;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.queue-detail h3 {
+  margin: 8px 0;
+  color: var(--text);
+  font-size: 22px;
+}
+
+.queue-detail p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.queue-detail dl {
+  display: grid;
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.queue-detail dl div {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+  background: rgba(237, 243, 236, 0.04);
+}
+
+.queue-detail dt {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.queue-detail dd {
+  margin: 5px 0 0;
+  color: var(--text);
+  font-size: 13px;
+}
+
+.queue-detail button {
+  width: 100%;
+  min-height: 34px;
+  border: 1px solid rgba(79, 224, 202, 0.3);
+  border-radius: 8px;
+  color: var(--ink);
+  background: var(--teal);
+  font-size: 13px;
+  font-weight: 900;
 }
 
 .main-panel,
@@ -1155,6 +1233,7 @@ button {
 
   .topbar,
   .stage,
+  .queue-layout,
   .queue-grid,
   .scene-grid {
     grid-template-columns: 1fr;
