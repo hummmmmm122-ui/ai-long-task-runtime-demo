@@ -91,6 +91,7 @@ describe('App runtime interactions', () => {
     expect(container.textContent).toContain('提出问题');
     expect(container.textContent).toContain('进入第一节点确认');
     expect(container.textContent).toContain('当前还没到聊天分支');
+    expect(container.textContent).not.toContain('自由输入');
     expect(container.textContent).toContain('继续执行');
     for (const copy of presentationOnlyCopy) {
       expect(container.textContent).not.toContain(copy);
@@ -101,6 +102,9 @@ describe('App runtime interactions', () => {
     renderApp();
 
     clickButton('进入第一节点确认');
+    clickButton('先提修改意见');
+    expect(container.textContent).toContain('修改第一节点');
+    clickButton('返回第一节点确认');
     clickButton('确认第一节点');
     clickButton('现在并行确认');
     clickButton('标记需复核');
@@ -199,7 +203,9 @@ describe('App runtime interactions', () => {
     clickButton('回到运行台');
     expect(container.textContent).toContain('当前模板：调研摘要工作流 · 稳妥确认');
     clickButton('进入第一节点确认');
-    clickButton('确认第一节点');
+    clickButton('先提修改意见');
+    expect(container.textContent).toContain('返回第一节点确认');
+    clickButton('带着修改进入第二节点');
     clickButton('现在并行确认');
     clickButton('保留当前版并开分支');
     clickButton('进入分支式聊天');

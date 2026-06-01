@@ -43,7 +43,7 @@ type TemplatePreset = {
 
 type TopPanel = 'search' | 'notifications' | null;
 type CollapsiblePanel = 'details' | 'nodes' | 'quickPrompts' | 'history' | 'handoff';
-type StoryStep = 'problem' | 'confirm-first' | 'confirm-second' | 'revise-third' | 'confirm-rest' | 'branch-chat' | 'chat-expand';
+type StoryStep = 'problem' | 'confirm-first' | 'revise-first' | 'confirm-second' | 'revise-third' | 'confirm-rest' | 'branch-chat' | 'chat-expand';
 
 function App() {
   const [workspaceView, setWorkspaceView] = useState<WorkspaceView>('task');
@@ -461,6 +461,7 @@ function App() {
             <section className="story-progress" aria-label="递进式流程">
               <span className={storyStep === 'problem' ? 'active' : ''}>提出问题</span>
               <span className={storyStep === 'confirm-first' ? 'active' : ''}>确认第一节点</span>
+              <span className={storyStep === 'revise-first' ? 'active' : ''}>修改第一节点</span>
               <span className={storyStep === 'confirm-second' ? 'active' : ''}>第二节点</span>
               <span className={storyStep === 'revise-third' ? 'active' : ''}>修改第三节点</span>
               <span className={storyStep === 'confirm-rest' ? 'active' : ''}>确认剩余节点</span>
@@ -484,7 +485,19 @@ function App() {
                 <p>先只确认第一节点，不把整张节点图一次性摊给用户，降低第一次决策负担。</p>
                 <div className="arc-actions">
                   <button type="button" onClick={acceptNote}>确认第一节点</button>
-                  <button type="button" onClick={() => { setNodeDecision('needs-review'); setStoryStep('branch-chat'); }}>先提修改意见</button>
+                  <button type="button" onClick={() => { setNodeDecision('needs-review'); setStoryStep('revise-first'); }}>先提修改意见</button>
+                </div>
+              </section>
+            )}
+
+            {storyStep === 'revise-first' && (
+              <section className="focus-card">
+                <span>修改第一节点</span>
+                <strong>先在第一节点本地改清楚，再决定要不要继续往后展开</strong>
+                <p>这里不直接跳去分支式聊天。你可以先修改第一节点理解，再回到确认，或者继续进入第二节点。</p>
+                <div className="arc-actions">
+                  <button type="button" onClick={() => setStoryStep('confirm-first')}>返回第一节点确认</button>
+                  <button type="button" onClick={() => setStoryStep('confirm-second')}>带着修改进入第二节点</button>
                 </div>
               </section>
             )}
@@ -739,6 +752,7 @@ function App() {
                 <p>
                   {storyStep === 'problem' && '先让用户进入第一节点确认，再开启插话入口。'}
                   {storyStep === 'confirm-first' && '完成第一节点确认后，聊天区会开始承接修改意见。'}
+                  {storyStep === 'revise-first' && '先把第一节点改清楚，仍然可以返回确认，不会直接跳去聊天。'}
                   {storyStep === 'confirm-second' && '第二节点确认方式确定后，再进入分支式聊天。'}
                   {storyStep === 'revise-third' && '先决定回退重做还是保留开分支，聊天区随后展开。'}
                   {storyStep === 'confirm-rest' && '剩余节点确认完之后，再由聊天去承接下一步需求。'}
