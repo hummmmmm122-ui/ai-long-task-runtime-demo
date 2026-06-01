@@ -132,13 +132,12 @@ http://localhost:5173/
 ## 构建验证
 
 ```bash
-npm test
-npm run build
+npm run verify
 ```
 
 ## GitHub Pages 部署
 
-项目已内置 `.github/workflows/pages.yml`。推送到 `main` 后，GitHub Actions 会先执行 `npm test`，再构建 `dist` 并部署到 GitHub Pages。
+项目已内置 `.github/workflows/pages.yml`。推送到 `main` 后，GitHub Actions 会执行 `npm run verify`，通过测试和构建后部署 `dist` 到 GitHub Pages。
 
 ## 设计取舍
 

@@ -59,11 +59,10 @@
 ## 验证方式
 
 ```bash
-npm test
-npm run build
+npm run verify
 ```
 
-GitHub Pages 工作流会在推送到 `main` 后先执行测试，再构建并部署页面。
+GitHub Pages 工作流会在推送到 `main` 后执行同一个验证命令，通过测试和构建后再部署页面。
 
 ## 后续扩展建议
 
