@@ -44,7 +44,7 @@ button {
 
 .workbench {
   display: grid;
-  grid-template-columns: 64px minmax(0, 1fr);
+  grid-template-columns: 56px minmax(0, 1fr);
   width: 100%;
   height: 100dvh;
   background:
@@ -56,15 +56,15 @@ button {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 18px;
-  padding: 22px 0;
+  gap: 14px;
+  padding: 18px 0;
   border-right: 1px solid var(--line);
   background: #0c100e;
 }
 
 .brand-mark {
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
   display: grid;
   place-items: center;
   border: 1px solid var(--line);
@@ -76,11 +76,11 @@ button {
 
 .rail-item {
   width: 100%;
-  height: 42px;
+  height: 38px;
   border-left: 2px solid transparent;
   background: transparent;
   color: var(--dim);
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .rail-item:hover,
@@ -96,25 +96,25 @@ button {
 
 .workspace {
   display: grid;
-  grid-template-rows: 64px minmax(0, 1fr);
+  grid-template-rows: 58px minmax(0, 1fr);
   min-width: 0;
   height: 100dvh;
 }
 
 .topbar {
   display: grid;
-  grid-template-columns: 230px minmax(300px, 1fr) 230px;
+  grid-template-columns: 205px minmax(260px, 1fr) 210px;
   align-items: center;
-  gap: 24px;
+  gap: 20px;
   border-bottom: 1px solid var(--line);
   background: rgba(18, 23, 19, 0.92);
-  padding: 0 24px;
+  padding: 0 20px;
 }
 
 .title-pack h1 {
   margin: 0 0 3px;
   color: var(--text);
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 650;
   letter-spacing: 0;
 }
@@ -137,7 +137,7 @@ button {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 32px;
+  height: 28px;
 }
 
 .progress-line::before,
@@ -161,8 +161,8 @@ button {
 .progress-dot {
   position: relative;
   z-index: 2;
-  width: 15px;
-  height: 15px;
+  width: 13px;
+  height: 13px;
   border: 1px solid var(--line);
   border-radius: 50%;
   background: var(--bg);
@@ -200,13 +200,13 @@ button {
 }
 
 .icon-button {
-  width: 34px;
-  height: 34px;
+  width: 31px;
+  height: 31px;
   border: 1px solid var(--line);
   border-radius: 7px;
   background: transparent;
   color: var(--muted);
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .icon-button.active,
@@ -217,9 +217,9 @@ button {
 }
 
 .execute-button {
-  height: 34px;
+  height: 31px;
   border-radius: 7px;
-  padding: 0 14px;
+  padding: 0 12px;
   color: var(--ink);
   background: var(--teal);
   font-weight: 800;
@@ -332,7 +332,7 @@ button {
 
 .stage {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 236px 292px;
+  grid-template-columns: minmax(0, 1fr) 220px 270px;
   gap: 1px;
   min-height: 0;
   background: var(--line);
@@ -840,21 +840,21 @@ button {
 .main-panel {
   display: grid;
   grid-template-rows: auto auto minmax(0, 1fr) auto;
-  padding: 24px;
+  padding: 20px;
 }
 
 .status-header {
   display: flex;
   justify-content: space-between;
-  gap: 24px;
-  padding-bottom: 24px;
+  gap: 20px;
+  padding-bottom: 18px;
   border-bottom: 1px solid var(--line);
 }
 
 .status-header h2 {
-  margin: 8px 0 8px;
+  margin: 6px 0 6px;
   color: var(--text);
-  font-size: 42px;
+  font-size: 34px;
   line-height: 1.08;
   font-weight: 700;
   letter-spacing: 0;
@@ -864,25 +864,25 @@ button {
   max-width: 760px;
   margin: 0;
   color: var(--muted);
-  font-size: 15px;
-  line-height: 1.7;
+  font-size: 13px;
+  line-height: 1.6;
 }
 
 .value-anchor {
   display: inline-flex;
-  margin: 0 0 9px;
+  margin: 0 0 7px;
   border: 1px solid rgba(79, 224, 202, 0.24);
   border-radius: 999px;
-  padding: 6px 10px;
+  padding: 5px 9px;
   color: var(--teal);
   background: rgba(79, 224, 202, 0.08);
-  font-size: 13px;
+  font-size: 12px;
   line-height: 1.2;
 }
 
 .template-anchor {
   display: table;
-  margin: 0 0 10px;
+  margin: 0 0 8px;
   border-left: 2px solid rgba(149, 210, 123, 0.42);
   padding-left: 9px;
   color: var(--green);
@@ -891,37 +891,37 @@ button {
 }
 
 .clock-card {
-  width: 142px;
-  height: 88px;
+  width: 124px;
+  height: 76px;
   display: grid;
   align-content: center;
   gap: 6px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 14px;
+  padding: 12px;
   background: var(--panel);
 }
 
 .clock-card span {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .clock-card strong {
   color: var(--teal);
   font-family: "Cascadia Mono", Consolas, monospace;
-  font-size: 26px;
+  font-size: 22px;
 }
 
 .director-cue {
   display: grid;
-  grid-template-columns: 138px minmax(0, 1fr) auto;
-  gap: 16px;
+  grid-template-columns: 126px minmax(0, 1fr) auto;
+  gap: 12px;
   align-items: center;
-  margin-top: 14px;
+  margin-top: 12px;
   border: 1px solid rgba(79, 224, 202, 0.22);
   border-radius: 8px;
-  padding: 11px 13px;
+  padding: 10px 12px;
   background: linear-gradient(90deg, rgba(79, 224, 202, 0.1), rgba(79, 224, 202, 0.03));
 }
 
@@ -971,19 +971,19 @@ button {
 
 .scene-grid {
   display: grid;
-  grid-template-columns: minmax(300px, 0.92fr) minmax(280px, 1fr);
-  gap: 16px;
+  grid-template-columns: minmax(280px, 0.9fr) minmax(260px, 1fr);
+  gap: 12px;
   min-height: 0;
-  padding: 18px 0;
+  padding: 14px 0;
 }
 
 .runtime-panel {
-  min-height: 210px;
-  max-height: 252px;
+  min-height: 188px;
+  max-height: 220px;
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 14px;
+  padding: 12px;
   background:
     linear-gradient(180deg, rgba(79, 224, 202, 0.07), transparent 56%),
     repeating-linear-gradient(0deg, rgba(255,255,255,0.028) 0 1px, transparent 1px 40px),
@@ -993,9 +993,9 @@ button {
 .runtime-panel header {
   display: flex;
   justify-content: space-between;
-  gap: 14px;
+  gap: 10px;
   align-items: flex-start;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .runtime-panel header span,
@@ -1012,7 +1012,7 @@ button {
   display: block;
   margin-top: 4px;
   color: var(--text);
-  font-size: 17px;
+  font-size: 15px;
 }
 
 .runtime-panel header em {
@@ -1028,17 +1028,17 @@ button {
 
 .runtime-timeline {
   display: grid;
-  gap: 7px;
+  gap: 6px;
 }
 
 .runtime-timeline button {
   display: grid;
-  grid-template-columns: 66px minmax(0, 1fr);
-  gap: 10px;
+  grid-template-columns: 60px minmax(0, 1fr);
+  gap: 8px;
   width: 100%;
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 8px 9px;
+  padding: 7px 8px;
   background: rgba(32, 38, 31, 0.75);
   text-align: left;
 }
@@ -1149,7 +1149,7 @@ button {
   overflow: auto;
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 16px;
+  padding: 13px;
   background: var(--panel);
 }
 
@@ -1170,7 +1170,7 @@ button {
 .node-list header button,
 .branch-actions button,
 .next-actions button {
-  min-height: 30px;
+  min-height: 28px;
   border: 1px solid var(--line);
   border-radius: 7px;
   padding: 0 10px;
@@ -1181,16 +1181,16 @@ button {
 }
 
 .node-detail h3 {
-  margin: 10px 0 5px;
+  margin: 8px 0 4px;
   color: var(--text);
-  font-size: 15px;
+  font-size: 14px;
 }
 
 .node-detail p {
   margin: 0;
   color: var(--muted);
-  font-size: 13px;
-  line-height: 1.55;
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .node-decision,
@@ -1342,8 +1342,8 @@ button {
 
 .artifact-strip article {
   display: grid;
-  gap: 6px;
-  padding: 12px 14px;
+  gap: 5px;
+  padding: 10px 12px;
   background: var(--panel);
 }
 
@@ -1354,7 +1354,7 @@ button {
 
 .artifact-strip strong {
   color: var(--text);
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .artifact-strip article.is-hot {
@@ -1380,7 +1380,7 @@ button {
 .node-list,
 .chat-panel {
   overflow: auto;
-  padding: 18px;
+  padding: 16px;
 }
 
 .node-list header,
@@ -1388,19 +1388,19 @@ button {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .node-row {
   display: grid;
-  grid-template-columns: 32px 1fr;
-  gap: 12px;
+  grid-template-columns: 28px 1fr;
+  gap: 10px;
   width: 100%;
-  min-height: 76px;
-  margin-bottom: 10px;
+  min-height: 68px;
+  margin-bottom: 9px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 12px;
+  padding: 10px;
   background: var(--panel);
   text-align: left;
 }
@@ -1462,13 +1462,13 @@ button {
 
 .message-list {
   display: grid;
-  gap: 10px;
+  gap: 9px;
 }
 
 .message {
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 11px;
+  padding: 10px;
   background: var(--panel);
 }
 
@@ -1495,17 +1495,17 @@ button {
 .branch-card p {
   margin: 7px 0 0;
   color: var(--muted);
-  font-size: 13px;
-  line-height: 1.55;
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .branch-card,
 .intervention-form,
 .next-actions {
-  margin-top: 16px;
+  margin-top: 14px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 14px;
+  padding: 12px;
   background: var(--panel-2);
 }
 
