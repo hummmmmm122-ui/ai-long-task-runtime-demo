@@ -985,6 +985,72 @@ button {
   margin-top: 12px;
 }
 
+.story-progress {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.story-progress span {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 10px;
+  color: var(--muted);
+  background: rgba(237, 243, 236, 0.04);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.story-progress span.active {
+  border-color: rgba(79, 224, 202, 0.42);
+  color: var(--ink);
+  background: var(--teal);
+}
+
+.focus-card {
+  margin-top: 12px;
+  border: 1px solid rgba(79, 224, 202, 0.22);
+  border-radius: 12px;
+  padding: 16px;
+  background:
+    linear-gradient(140deg, rgba(79, 224, 202, 0.1), rgba(237, 243, 236, 0.03) 58%),
+    var(--panel);
+}
+
+.focus-card span {
+  color: var(--teal);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.focus-card strong {
+  display: block;
+  margin-top: 8px;
+  color: var(--text);
+  font-size: 24px;
+}
+
+.focus-card p {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.focus-card button {
+  min-height: 38px;
+  margin-top: 16px;
+  padding: 0 18px;
+  border-radius: 8px;
+  color: var(--ink);
+  background: var(--teal);
+  font-size: 14px;
+  font-weight: 900;
+}
+
 .arc-card,
 .revision-card {
   border: 1px solid rgba(79, 224, 202, 0.18);
@@ -1900,6 +1966,28 @@ button {
 
 .chat-howto p {
   margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.guided-chat-lock {
+  border: 1px solid rgba(255, 209, 102, 0.24);
+  border-radius: 8px;
+  padding: 12px;
+  background: rgba(255, 209, 102, 0.07);
+}
+
+.guided-chat-lock span {
+  color: var(--amber);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.guided-chat-lock p {
+  margin: 8px 0 0;
   color: var(--muted);
   font-size: 12px;
   line-height: 1.45;

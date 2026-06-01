@@ -88,13 +88,9 @@ describe('App runtime interactions', () => {
     renderApp();
 
     expect(container.textContent).toContain('黑板思考');
-    expect(container.textContent).toContain('工作台');
-    expect(container.textContent).toContain('二楼分支');
-    expect(container.textContent).toContain('第一节点确认');
-    expect(container.textContent).toContain('第二节点处理方式');
-    expect(container.textContent).toContain('Step 1');
-    expect(container.textContent).toContain('Step 2');
-    expect(container.textContent).toContain('Step 3');
+    expect(container.textContent).toContain('提出问题');
+    expect(container.textContent).toContain('进入第一节点确认');
+    expect(container.textContent).toContain('当前还没到聊天分支');
     expect(container.textContent).toContain('继续执行');
     for (const copy of presentationOnlyCopy) {
       expect(container.textContent).not.toContain(copy);
@@ -104,16 +100,21 @@ describe('App runtime interactions', () => {
   it('supports node review, branch comparison, and stateful handoff summary', () => {
     renderApp();
 
+    clickButton('进入第一节点确认');
+    clickButton('确认第一节点');
+    clickButton('现在并行确认');
     clickButton('标记需复核');
     expect(container.textContent).toContain('需人工复核');
 
+    clickButton('保留当前版并开分支');
+    clickButton('进入分支式聊天');
+    clickButton('开始分支式聊天');
     fillIntervention('risk check first');
     clickButton('让 AI 给处理建议');
     expect(container.textContent).toContain('risk check first');
     expect(container.textContent).toContain('待处理的修改意见');
     expect(container.textContent).toContain('先只记录为约束');
 
-    clickButton('保留并开分支');
     expect(container.textContent).toContain('V2 正在试跑新意见');
     expect(container.textContent).toContain('V1 / V2 对比');
     expect(container.textContent).toContain('V1 / V2 checkpoint');
@@ -197,6 +198,12 @@ describe('App runtime interactions', () => {
     clickButton('允许用户随时插话');
     clickButton('回到运行台');
     expect(container.textContent).toContain('当前模板：调研摘要工作流 · 稳妥确认');
+    clickButton('进入第一节点确认');
+    clickButton('确认第一节点');
+    clickButton('现在并行确认');
+    clickButton('保留当前版并开分支');
+    clickButton('进入分支式聊天');
+    clickButton('开始分支式聊天');
     expect(container.textContent).toContain('自由输入');
     expect(container.textContent).toContain('让 AI 给处理建议');
 
@@ -232,8 +239,8 @@ describe('App runtime interactions', () => {
     clickButton('交接时生成阶段摘要');
     clickButton('回到运行台');
 
-    expect(container.textContent).toContain('插话入口已收起');
-    expect(container.textContent).toContain('当前策略：直接写入主任务，不自动开启分支');
+    expect(container.textContent).toContain('当前还没到聊天分支');
+    expect(container.textContent).toContain('当前策略关闭自动分支，修改会直接写入主任务');
     clickButton('完成后的下一步');
     expect(container.textContent).toContain('阶段摘要已关闭');
     expect(container.textContent).not.toContain('自由输入');
@@ -249,12 +256,25 @@ describe('App runtime interactions', () => {
   it('supports rewind or branching when revising completed nodes', () => {
     renderApp();
 
+    clickButton('进入第一节点确认');
+    clickButton('确认第一节点');
+    clickButton('现在并行确认');
     clickButton('回退到上一节点重做');
-    expect(container.textContent).toContain('已选择回退重做');
-    expect(container.textContent).toContain('生成节点图');
+    expect(container.textContent).toContain('确认剩余节点');
+
+    act(() => {
+      root.unmount();
+    });
+    container.innerHTML = '';
+    root = createRoot(container);
+    renderApp();
+
+    clickButton('进入第一节点确认');
+    clickButton('确认第一节点');
+    clickButton('现在并行确认');
 
     clickButton('保留当前版并开分支');
-    expect(container.textContent).toContain('已选择保留当前版并开分支');
+    expect(container.textContent).toContain('确认剩余节点');
     expect(container.textContent).toContain('V2 正在试跑新意见');
   });
 

@@ -43,6 +43,7 @@ type TemplatePreset = {
 
 type TopPanel = 'search' | 'notifications' | null;
 type CollapsiblePanel = 'details' | 'nodes' | 'quickPrompts' | 'history' | 'handoff';
+type StoryStep = 'problem' | 'confirm-first' | 'confirm-second' | 'revise-third' | 'confirm-rest' | 'branch-chat' | 'chat-expand';
 
 function App() {
   const [workspaceView, setWorkspaceView] = useState<WorkspaceView>('task');
@@ -60,6 +61,7 @@ function App() {
   const [nodeDecision, setNodeDecision] = useState<NodeDecision>('pending');
   const [secondNodeReviewMode, setSecondNodeReviewMode] = useState<'pending' | 'later' | 'parallel' | 'confirmed'>('pending');
   const [revisionMode, setRevisionMode] = useState<'none' | 'redo' | 'branch'>('none');
+  const [storyStep, setStoryStep] = useState<StoryStep>('problem');
   const [selectedArtifact, setSelectedArtifact] = useState<ArtifactKey>('draft');
   const [appliedTemplate, setAppliedTemplate] = useState('长文档分析任务');
   const [topPanel, setTopPanel] = useState<TopPanel>(null);
@@ -178,6 +180,7 @@ function App() {
     setNodeDecision('pending');
     setSecondNodeReviewMode('pending');
     setRevisionMode('none');
+    setStoryStep('problem');
     setSelectedArtifact('draft');
   };
 
@@ -189,6 +192,7 @@ function App() {
     setSelectedEventId('draft');
     setSecondNodeReviewMode('confirmed');
     setRevisionMode('none');
+    setStoryStep('confirm-second');
     setOpenPanels((current) => ({ ...current, details: true }));
   };
 
@@ -199,6 +203,7 @@ function App() {
     setSelectedEventId('branch');
     setSelectedArtifact('checkpoint');
     setRevisionMode('branch');
+    setStoryStep('branch-chat');
     setOpenPanels((current) => ({ ...current, details: true }));
   };
 
@@ -209,6 +214,7 @@ function App() {
     setCueStep('interrupt');
     setNodeDecision('needs-review');
     setRevisionMode('redo');
+    setStoryStep('revise-third');
     setExtraMessages((messages) => [
       ...messages,
       { speaker: 'AI', text: '已按你的选择回退到“生成节点图”，我会基于新意见重做后续节点。' }
@@ -227,6 +233,7 @@ function App() {
         ...messages,
         { speaker: 'AI', text: '已写入当前节点：主任务继续执行，后续节点会按这条偏好调整确认节奏。' }
       ]);
+      setStoryStep('confirm-rest');
     }
 
     if (mode === 'branch') {
@@ -245,6 +252,7 @@ function App() {
         ...messages,
         { speaker: 'AI', text: '已先记录为约束，不改当前方案。你可以稍后再决定写入当前节点或开分支。' }
       ]);
+      setStoryStep('branch-chat');
     }
 
     setPendingIntervention('');
@@ -285,6 +293,7 @@ function App() {
     setPendingIntervention(trimmed);
     setInterventionText('');
     setCueStep('interrupt');
+    setStoryStep('branch-chat');
   };
 
   const applyTemplatePreset = (template: TemplatePreset) => {
@@ -449,31 +458,91 @@ function App() {
               <b>{cueNumber}/4</b>
             </section>
 
-            <section className="confirmation-arc" aria-label="节点确认剧情">
-              <article className="arc-card">
+            <section className="story-progress" aria-label="递进式流程">
+              <span className={storyStep === 'problem' ? 'active' : ''}>提出问题</span>
+              <span className={storyStep === 'confirm-first' ? 'active' : ''}>确认第一节点</span>
+              <span className={storyStep === 'confirm-second' ? 'active' : ''}>第二节点</span>
+              <span className={storyStep === 'revise-third' ? 'active' : ''}>修改第三节点</span>
+              <span className={storyStep === 'confirm-rest' ? 'active' : ''}>确认剩余节点</span>
+              <span className={storyStep === 'branch-chat' ? 'active' : ''}>分支式聊天</span>
+              <span className={storyStep === 'chat-expand' ? 'active' : ''}>展开下一步</span>
+            </section>
+
+            {storyStep === 'problem' && (
+              <section className="focus-card hero-step">
+                <span>提出问题</span>
+                <strong>用户刚刚提交了一个长耗时任务</strong>
+                <p>目标不是立刻给最终答案，而是先把等待过程重构成可理解、可参与的流程。</p>
+                <button type="button" onClick={() => setStoryStep('confirm-first')}>进入第一节点确认</button>
+              </section>
+            )}
+
+            {storyStep === 'confirm-first' && (
+              <section className="focus-card">
                 <span>第一节点确认</span>
-                <strong>{noteAccepted ? '已完成' : '待确认'}</strong>
-                <p>先只确认第一节点，避免一开始就把所有节点都摊给用户。</p>
+                <strong>{noteAccepted ? '第一节点已确认' : '请先确认第一节点'}</strong>
+                <p>先只确认第一节点，不把整张节点图一次性摊给用户，降低第一次决策负担。</p>
                 <div className="arc-actions">
                   <button type="button" onClick={acceptNote}>确认第一节点</button>
-                  <button type="button" onClick={() => setNodeDecision('needs-review')}>先提修改意见</button>
+                  <button type="button" onClick={() => { setNodeDecision('needs-review'); setStoryStep('branch-chat'); }}>先提修改意见</button>
                 </div>
-              </article>
-              <article className="arc-card">
+              </section>
+            )}
+
+            {storyStep === 'confirm-second' && (
+              <section className="focus-card">
                 <span>第二节点处理方式</span>
                 <strong>
-                  {secondNodeReviewMode === 'pending' && '待决定'}
-                  {secondNodeReviewMode === 'later' && '稍后确认'}
-                  {secondNodeReviewMode === 'parallel' && '并行确认'}
-                  {secondNodeReviewMode === 'confirmed' && '已确认可直跑'}
+                  {secondNodeReviewMode === 'pending' && '现在决定第二节点怎么确认'}
+                  {secondNodeReviewMode === 'later' && '第二节点会稍后暂停确认'}
+                  {secondNodeReviewMode === 'parallel' && '第二节点会并行确认'}
+                  {secondNodeReviewMode === 'confirmed' && '第二节点已确认可直跑'}
                 </strong>
-                <p>如果第一节点耗时长，就允许用户在它运行时并行确认第二节点；否则先停一下等确认。</p>
+                <p>如果第一节点耗时长，就允许用户在运行中并行确认第二节点；否则等到点再暂停确认。</p>
                 <div className="arc-actions">
-                  <button type="button" onClick={() => setSecondNodeReviewMode('later')}>稍后查看再暂停</button>
-                  <button type="button" onClick={() => setSecondNodeReviewMode('parallel')}>现在并行确认</button>
+                  <button type="button" onClick={() => { setSecondNodeReviewMode('later'); setStoryStep('revise-third'); }}>稍后查看再暂停</button>
+                  <button type="button" onClick={() => { setSecondNodeReviewMode('parallel'); setStoryStep('revise-third'); }}>现在并行确认</button>
                 </div>
-              </article>
-            </section>
+              </section>
+            )}
+
+            {storyStep === 'revise-third' && (
+              <section className="focus-card">
+                <span>修改第三节点</span>
+                <strong>当用户想改已完成节点时，不是只能推翻全部</strong>
+                <p>这里是 PRD 的关键动作：要么回退到上一节点重做，要么保留当前结果，另起 V2 新路径。</p>
+                <div className="arc-actions">
+                  <button type="button" onClick={() => { rewindToPlan(); setStoryStep('confirm-rest'); }}>回退到上一节点重做</button>
+                  <button type="button" onClick={() => { openBranch(); setStoryStep('confirm-rest'); }}>保留当前版并开分支</button>
+                </div>
+              </section>
+            )}
+
+            {storyStep === 'confirm-rest' && (
+              <section className="focus-card">
+                <span>确认剩余节点</span>
+                <strong>后续节点不再逐个硬停，而是允许用户在运行中回看</strong>
+                <p>一旦前面节奏已经建立，后续节点默认继续跑，除非用户主动要求每一步都确认。</p>
+                <button type="button" onClick={() => setStoryStep('branch-chat')}>进入分支式聊天</button>
+              </section>
+            )}
+
+            {storyStep === 'branch-chat' && (
+              <section className="focus-card">
+                <span>分支式聊天展开</span>
+                <strong>现在由聊天区承接用户修改意见与下一步需求</strong>
+                <p>左侧不再继续堆功能，用户的主要动作转到右侧：补一句要求，然后让 AI 给出处理建议。</p>
+                <button type="button" onClick={() => setStoryStep('chat-expand')}>开始分支式聊天</button>
+              </section>
+            )}
+
+            {storyStep === 'chat-expand' && (
+              <section className="focus-card">
+                <span>聊天确认与展开</span>
+                <strong>AI 会继续确认用户真正需求，并顺着它往下展开</strong>
+                <p>这一步不再是展示节点本身，而是接住用户的意图，确认要不要开新任务、继续追问，或者生成下一步建议。</p>
+              </section>
+            )}
 
             <section className={`robot-scene ${branchOpened ? 'has-branch' : ''}`} aria-label="二维 AI 运行场景">
               <div className="scene-floor main-floor">
@@ -510,26 +579,6 @@ function App() {
                   </p>
                 </div>
               </div>
-            </section>
-
-            <section className="storyline-summary" aria-label="单一剧情流">
-              <article className="story-step is-current">
-                <span>Step 1</span>
-                <strong>{noteAccepted ? '第一节点已确认' : '先确认第一节点'}</strong>
-                <p>先只确认第一节点，不把整份节点图一次性压给用户。</p>
-              </article>
-              <article className={`story-step ${secondNodeReviewMode !== 'pending' ? 'is-current' : ''}`}>
-                <span>Step 2</span>
-                <strong>
-                  {secondNodeReviewMode === 'pending' ? '决定第二节点怎么确认' : secondNodeReviewMode === 'later' ? '第二节点稍后暂停确认' : secondNodeReviewMode === 'parallel' ? '第二节点正在并行确认' : '第二节点已确认'}
-                </strong>
-                <p>根据第一节点耗时，决定是并行确认第二节点，还是到点暂停确认。</p>
-              </article>
-              <article className={`story-step ${revisionMode !== 'none' || branchOpened ? 'is-current' : ''}`}>
-                <span>Step 3</span>
-                <strong>{revisionMode === 'redo' ? '已回退重做' : branchOpened ? '已保留 V1 并开启 V2' : '修改已完成节点时做选择'}</strong>
-                <p>这是 PRD 最关键的瞬间：回退重做，还是保留当前版本另起新任务。</p>
-              </article>
             </section>
 
             <div className="scene-grid">
@@ -684,7 +733,18 @@ function App() {
               <strong>这不是最终交付按钮</strong>
               <p>你可以随时补一句要求，系统会先把它变成可处理的分支建议，再由你决定怎么写入。</p>
             </section>
-            {runtimeConfig.userInterrupt ? (
+            {storyStep !== 'branch-chat' && storyStep !== 'chat-expand' ? (
+              <section className="guided-chat-lock">
+                <span>当前还没到聊天分支</span>
+                <p>
+                  {storyStep === 'problem' && '先让用户进入第一节点确认，再开启插话入口。'}
+                  {storyStep === 'confirm-first' && '完成第一节点确认后，聊天区会开始承接修改意见。'}
+                  {storyStep === 'confirm-second' && '第二节点确认方式确定后，再进入分支式聊天。'}
+                  {storyStep === 'revise-third' && '先决定回退重做还是保留开分支，聊天区随后展开。'}
+                  {storyStep === 'confirm-rest' && '剩余节点确认完之后，再由聊天去承接下一步需求。'}
+                </p>
+              </section>
+            ) : runtimeConfig.userInterrupt ? (
               <form className="intervention-form" onSubmit={submitIntervention}>
                 <label htmlFor="intervention">自由输入</label>
                 <textarea
@@ -702,6 +762,7 @@ function App() {
                 <p>当前运行设置关闭了用户随时插话，任务会按节点确认节奏继续推进。</p>
               </section>
             )}
+            {(storyStep === 'branch-chat' || storyStep === 'chat-expand') && (
             <section className="quick-prompts" aria-label="快捷修改意见">
               <button className="collapse-toggle" type="button" onClick={() => togglePanel('quickPrompts')}>
                 <span>快捷意见</span>
@@ -717,6 +778,8 @@ function App() {
                 </button>
               ))}
             </section>
+            )}
+            {(storyStep === 'branch-chat' || storyStep === 'chat-expand') && (
             <section className="branch-card passive-card">
               <span>{pendingIntervention ? '待处理的修改意见' : '默认修改意见'}</span>
               <p>“{pendingIntervention || '第二节点不要再次阻塞确认，用户可以稍后查看；如果已经确认就自动接着跑。'}”</p>
@@ -746,6 +809,7 @@ function App() {
                 </div>
               </section>
             </section>
+            )}
             <section className="message-list-wrap">
               <button className="collapse-toggle" type="button" onClick={() => togglePanel('history')}>
                 <span>对话记录</span>
