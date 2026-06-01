@@ -55,6 +55,7 @@ function App() {
   const [selectedEventId, setSelectedEventId] = useState(initialEventId);
   const [interventionText, setInterventionText] = useState('');
   const [extraMessages, setExtraMessages] = useState<ChatMessage[]>([]);
+  const [pendingIntervention, setPendingIntervention] = useState('');
   const [nodeDecision, setNodeDecision] = useState<NodeDecision>('pending');
   const [selectedArtifact, setSelectedArtifact] = useState<ArtifactKey>('draft');
   const [appliedTemplate, setAppliedTemplate] = useState('长文档分析任务');
@@ -81,6 +82,11 @@ function App() {
   const artifacts = useMemo(() => getArtifacts(branchOpened), [branchOpened]);
   const currentArtifact = artifacts[selectedArtifact];
   const handoffSummary = getHandoffSummary(nodeDecision, extraMessages.some((message) => message.speaker === 'User'), branchOpened, isComplete);
+  const quickInterventions = [
+    '第二节点不要再次阻塞确认，确认过就自动接着跑。',
+    '先保留当前版本，再开一个更激进的方案分支。',
+    '把风险校验提前，避免最后才发现引用缺口。'
+  ];
 
   const selectedEvent = runtimeEvents.find((event) => event.id === selectedEventId) ?? runtimeEvents[0];
   const rhythmLabel = runtimeConfig.rhythm === 'safe' ? '稳妥确认' : runtimeConfig.rhythm === 'fast' ? '快速推进' : '平衡推进';
@@ -154,6 +160,7 @@ function App() {
     setSelectedEventId(initialEventId);
     setInterventionText('');
     setExtraMessages([]);
+    setPendingIntervention('');
     setNodeDecision('pending');
     setSelectedArtifact('draft');
   };
@@ -172,6 +179,40 @@ function App() {
     setSelectedId('branch');
     setSelectedEventId('branch');
     setSelectedArtifact('checkpoint');
+  };
+
+  const resolveIntervention = (mode: 'current' | 'branch' | 'record') => {
+    if (mode === 'current') {
+      setNoteAccepted(true);
+      setNodeDecision('confirmed');
+      setCueStep('interrupt');
+      setSelectedId('draft');
+      setSelectedEventId('draft');
+      setExtraMessages((messages) => [
+        ...messages,
+        { speaker: 'AI', text: '已写入当前节点：主任务继续执行，后续节点会按这条偏好调整确认节奏。' }
+      ]);
+    }
+
+    if (mode === 'branch') {
+      openBranch();
+      setNodeDecision('needs-review');
+      setExtraMessages((messages) => [
+        ...messages,
+        { speaker: 'AI', text: '已保留当前版本，并把这条意见放入 V2 分支验证，不覆盖已有成果。' }
+      ]);
+    }
+
+    if (mode === 'record') {
+      setNodeDecision('needs-review');
+      setCueStep('interrupt');
+      setExtraMessages((messages) => [
+        ...messages,
+        { speaker: 'AI', text: '已先记录为约束，不改当前方案。你可以稍后再决定写入当前节点或开分支。' }
+      ]);
+    }
+
+    setPendingIntervention('');
   };
 
   const advance = () => {
@@ -203,9 +244,10 @@ function App() {
     setExtraMessages((messages) => [
       ...messages,
       { speaker: 'User', text: trimmed },
-      { speaker: 'AI', text: '收到，我会把这条介入意见挂到当前节点，不暂停主任务。你可以选择采纳或开分支。' }
+      { speaker: 'AI', text: '收到。我先不替你硬写入，而是给出三种处理方式：写入当前节点、保留并开分支，或只记录为约束。' }
     ]);
     setNodeDecision('needs-review');
+    setPendingIntervention(trimmed);
     setInterventionText('');
     setCueStep('interrupt');
   };
@@ -372,6 +414,24 @@ function App() {
               <b>{cueNumber}/4</b>
             </section>
 
+            <section className="operation-guide" aria-label="操作路径">
+              <article className="guide-card is-active">
+                <span>1</span>
+                <strong>先提修改意见</strong>
+                <p>在右侧分支对话里输入约束，或点一个快捷意见。</p>
+              </article>
+              <article className={pendingIntervention ? 'guide-card is-active' : 'guide-card'}>
+                <span>2</span>
+                <strong>再选择处理方式</strong>
+                <p>{runtimeConfig.autoBranch ? '写入当前节点、保留并开分支，或只记录为约束。' : '写入当前节点，或先只记录为约束。'}</p>
+              </article>
+              <article className={branchOpened ? 'guide-card is-active' : 'guide-card'}>
+                <span>3</span>
+                <strong>最后看结果差异</strong>
+                <p>节点图、事件流和 V1/V2 checkpoint 会同步变化。</p>
+              </article>
+            </section>
+
             <div className="scene-grid">
               <section className="runtime-panel" aria-label="运行事件流">
                 <header>
@@ -499,34 +559,86 @@ function App() {
             </section>
           </section>
 
-          <aside className="node-list" aria-label="实时节点图">
-            <header>
-              <span>实时节点图</span>
-              <button onClick={resetTask}>重置任务</button>
-            </header>
-            {nodes.map((node, index) => (
-              <button
-                key={node.id}
-                className={`node-row ${node.status} ${node.id === selectedId ? 'selected' : ''}`}
-                onClick={() => setSelectedId(node.id)}
-              >
-                <b>{String(index + 1).padStart(2, '0')}</b>
-                <span>
-                  <strong>{node.title}</strong>
-                  <em>{statusLabel(node.status)}</em>
-                </span>
-              </button>
-            ))}
-          </aside>
+          <aside className="side-workspace" aria-label="节点与分支操作">
+            <section className="node-list" aria-label="实时节点图">
+              <header>
+                <span>实时节点图</span>
+                <button onClick={resetTask}>重置任务</button>
+              </header>
+              {nodes.map((node, index) => (
+                <button
+                  key={node.id}
+                  className={`node-row ${node.status} ${node.id === selectedId ? 'selected' : ''}`}
+                  onClick={() => setSelectedId(node.id)}
+                >
+                  <b>{String(index + 1).padStart(2, '0')}</b>
+                  <span>
+                    <strong>{node.title}</strong>
+                    <em>{statusLabel(node.status)}</em>
+                  </span>
+                </button>
+              ))}
+            </section>
 
-          <aside className="chat-panel" aria-label="分支式主动聊天">
+          <section className="chat-panel" aria-label="分支式主动聊天">
             <header>
               <div>
                 <span>分支式主动聊天</span>
-                <strong>不暂停主任务</strong>
+                <strong>{pendingIntervention ? '等待你选择处理方式' : '可以自由插话'}</strong>
               </div>
               <i />
             </header>
+            <section className="chat-howto" aria-label="分支对话说明">
+              <strong>这不是最终交付按钮</strong>
+              <p>你可以随时补一句要求，系统会先把它变成可处理的分支建议，再由你决定怎么写入。</p>
+            </section>
+            {runtimeConfig.userInterrupt ? (
+              <form className="intervention-form" onSubmit={submitIntervention}>
+                <label htmlFor="intervention">自由输入</label>
+                <textarea
+                  id="intervention"
+                  value={interventionText}
+                  onChange={(event) => setInterventionText(event.target.value)}
+                  placeholder="例如：这一步先别交付，开一个更保守的备选分支..."
+                  rows={3}
+                />
+                <button type="submit">让 AI 给处理建议</button>
+              </form>
+            ) : (
+              <section className="policy-note">
+                <span>插话入口已收起</span>
+                <p>当前运行设置关闭了用户随时插话，任务会按节点确认节奏继续推进。</p>
+              </section>
+            )}
+            <section className="quick-prompts" aria-label="快捷修改意见">
+              <span>试试这些自由意见</span>
+              {quickInterventions.map((prompt) => (
+                <button
+                  key={prompt}
+                  type="button"
+                  onClick={() => setInterventionText(prompt)}
+                >
+                  {prompt}
+                </button>
+              ))}
+            </section>
+            <section className="branch-card">
+              <span>{pendingIntervention ? '待处理的修改意见' : '默认修改意见'}</span>
+              <p>“{pendingIntervention || '第二节点不要再次阻塞确认，用户可以稍后查看；如果已经确认就自动接着跑。'}”</p>
+              <div className="branch-actions">
+                <button onClick={pendingIntervention ? () => resolveIntervention('current') : acceptNote}>写入当前节点</button>
+                {runtimeConfig.autoBranch ? (
+                  <button onClick={pendingIntervention ? () => resolveIntervention('branch') : openBranch}>保留并开分支</button>
+                ) : (
+                  <em>当前策略：直接写入主任务，不自动开启分支</em>
+                )}
+              </div>
+              {pendingIntervention && (
+                <button className="secondary-action" type="button" onClick={() => resolveIntervention('record')}>
+                  先只记录为约束
+                </button>
+              )}
+            </section>
             <div className="message-list">
               {visibleMessages.map((message, index) => (
                 <article className={`message ${message.speaker === 'User' ? 'user' : 'ai'}`} key={`${message.speaker}-${index}`}>
@@ -547,36 +659,6 @@ function App() {
                 </article>
               )}
             </div>
-            <section className="branch-card">
-              <span>用户修改意见</span>
-              <p>“第二节点不要再次阻塞确认，用户可以稍后查看；如果已经确认就自动接着跑。”</p>
-              <div className="branch-actions">
-                <button onClick={acceptNote}>采纳到当前节点</button>
-                {runtimeConfig.autoBranch ? (
-                  <button onClick={openBranch}>保留并开分支</button>
-                ) : (
-                  <em>当前策略：直接写入主任务，不自动开启分支</em>
-                )}
-              </div>
-            </section>
-            {runtimeConfig.userInterrupt ? (
-              <form className="intervention-form" onSubmit={submitIntervention}>
-                <label htmlFor="intervention">临时介入</label>
-                <textarea
-                  id="intervention"
-                  value={interventionText}
-                  onChange={(event) => setInterventionText(event.target.value)}
-                  placeholder="补充一个约束，或要求从当前节点开分支..."
-                  rows={3}
-                />
-                <button type="submit">发送到当前节点</button>
-              </form>
-            ) : (
-              <section className="policy-note">
-                <span>插话入口已收起</span>
-                <p>当前运行设置关闭了用户随时插话，任务会按节点确认节奏继续推进。</p>
-              </section>
-            )}
             <section className="next-actions">
               <span>完成后的下一步</span>
               {runtimeConfig.handoffSummary ? (
@@ -614,6 +696,7 @@ function App() {
                 </article>
               )}
             </section>
+          </section>
           </aside>
         </section>
         )}

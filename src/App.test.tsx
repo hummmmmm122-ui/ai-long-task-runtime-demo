@@ -101,8 +101,10 @@ describe('App runtime interactions', () => {
     expect(container.textContent).toContain('需人工复核');
 
     fillIntervention('risk check first');
-    clickButton('发送到当前节点');
+    clickButton('让 AI 给处理建议');
     expect(container.textContent).toContain('risk check first');
+    expect(container.textContent).toContain('待处理的修改意见');
+    expect(container.textContent).toContain('先只记录为约束');
 
     clickButton('保留并开分支');
     expect(container.textContent).toContain('V1 / V2 对比');
@@ -186,7 +188,8 @@ describe('App runtime interactions', () => {
     clickButton('允许用户随时插话');
     clickButton('回到运行台');
     expect(container.textContent).toContain('当前模板：调研摘要工作流 · 稳妥确认');
-    expect(container.textContent).toContain('临时介入');
+    expect(container.textContent).toContain('自由输入');
+    expect(container.textContent).toContain('让 AI 给处理建议');
 
     clickButton('▤');
     applyTemplate('多轮方案生成');
@@ -223,7 +226,7 @@ describe('App runtime interactions', () => {
     expect(container.textContent).toContain('插话入口已收起');
     expect(container.textContent).toContain('当前策略：直接写入主任务，不自动开启分支');
     expect(container.textContent).toContain('阶段摘要已关闭');
-    expect(container.textContent).not.toContain('临时介入');
+    expect(container.textContent).not.toContain('自由输入');
     expect(container.textContent).not.toContain('保留并开分支');
     expect(container.textContent).not.toContain('生成阶段摘要');
 
