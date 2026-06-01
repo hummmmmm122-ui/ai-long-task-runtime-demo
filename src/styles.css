@@ -364,156 +364,123 @@ button {
   padding: 18px 0;
 }
 
-.robot-scene {
-  position: relative;
+.runtime-panel {
   min-height: 210px;
   max-height: 252px;
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background:
-    linear-gradient(180deg, rgba(149, 210, 123, 0.08), transparent 52%),
-    repeating-linear-gradient(90deg, rgba(255,255,255,0.03) 0 1px, transparent 1px 48px),
-    #141914;
-}
-
-.blackboard {
-  position: absolute;
-  left: 24px;
-  top: 24px;
-  width: 204px;
-  height: 98px;
-  border: 1px solid rgba(149, 210, 123, 0.32);
-  border-radius: 7px;
   padding: 14px;
-  background: #0b1812;
-  box-shadow: inset 0 0 40px rgba(149, 210, 123, 0.08);
+  background:
+    linear-gradient(180deg, rgba(79, 224, 202, 0.07), transparent 56%),
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.028) 0 1px, transparent 1px 40px),
+    #111612;
 }
 
-.blackboard span,
-.blackboard em {
-  display: block;
-  color: var(--green);
-  font-size: 12px;
-  font-style: normal;
+.runtime-panel header {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 12px;
 }
 
-.blackboard strong {
+.runtime-panel header span,
+.runtime-artifacts span {
   display: block;
-  margin: 7px 0;
+  color: var(--muted);
+  font-family: "Cascadia Mono", Consolas, monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.runtime-panel header strong {
+  display: block;
+  margin-top: 4px;
   color: var(--text);
-  font-size: 18px;
+  font-size: 17px;
 }
 
-.agent {
-  position: absolute;
+.runtime-panel header em {
+  border: 1px solid rgba(255, 209, 102, 0.28);
+  border-radius: 999px;
+  padding: 5px 8px;
+  color: var(--amber);
+  background: rgba(255, 209, 102, 0.08);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.runtime-timeline {
   display: grid;
-  place-items: center;
-  animation: bob 2.4s ease-in-out infinite;
+  gap: 7px;
 }
 
-.agent i {
-  width: 58px;
-  height: 46px;
-  border: 2px solid rgba(237, 243, 236, 0.72);
-  border-radius: 16px;
-  background: linear-gradient(180deg, #edf3ec, #b9c7b6);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.28);
-}
-
-.agent i::before,
-.agent i::after {
-  content: "";
-  position: absolute;
-  top: 24px;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #101310;
-}
-
-.agent i::before {
-  left: 18px;
-}
-
-.agent i::after {
-  right: 18px;
-}
-
-.agent b {
-  position: absolute;
-  bottom: -26px;
-  width: 78px;
-  height: 26px;
-  border-radius: 50%;
-  background: rgba(79, 224, 202, 0.15);
-  filter: blur(8px);
-}
-
-.agent-main {
-  left: 42%;
-  bottom: 52px;
-}
-
-.agent-small {
-  transform: scale(0.68);
-  opacity: 0.86;
-}
-
-.agent-small.one {
-  right: 120px;
-  bottom: 82px;
-  animation-delay: 0.3s;
-}
-
-.agent-small.two {
-  right: 58px;
-  bottom: 42px;
-  animation-delay: 0.7s;
-}
-
-.thought {
-  position: absolute;
-  max-width: 190px;
+.runtime-timeline article {
+  display: grid;
+  grid-template-columns: 66px minmax(0, 1fr);
+  gap: 10px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 8px 10px;
-  color: var(--text);
-  background: rgba(32, 38, 31, 0.92);
+  padding: 8px 9px;
+  background: rgba(32, 38, 31, 0.75);
+}
+
+.runtime-timeline b {
+  color: var(--dim);
+  font-family: "Cascadia Mono", Consolas, monospace;
+  font-size: 11px;
+}
+
+.runtime-timeline span {
+  color: var(--muted);
   font-size: 12px;
-  animation: floatIn 4.8s ease-in-out infinite;
+  line-height: 1.45;
 }
 
-.thought.one {
-  left: 44%;
-  top: 54px;
+.runtime-timeline .done b {
+  color: var(--teal);
 }
 
-.thought.two {
-  right: 42px;
-  top: 110px;
-  animation-delay: 1s;
+.runtime-timeline .running {
+  border-color: rgba(255, 209, 102, 0.32);
+  background: rgba(255, 209, 102, 0.08);
 }
 
-.thought.three {
-  left: 82px;
-  bottom: 22px;
-  animation-delay: 2s;
+.runtime-timeline .running b {
+  color: var(--amber);
 }
 
-.second-floor {
-  position: absolute;
-  left: 28px;
-  right: 28px;
-  bottom: 24px;
-  height: 46px;
-  display: grid;
-  place-items: center;
-  border: 1px dashed rgba(149, 210, 123, 0.55);
-  border-radius: 8px;
+.runtime-timeline .branch {
+  border-color: rgba(149, 210, 123, 0.36);
+  background: rgba(149, 210, 123, 0.09);
+}
+
+.runtime-timeline .branch b {
   color: var(--green);
-  background: rgba(149, 210, 123, 0.08);
-  font-weight: 800;
+}
+
+.runtime-artifacts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.runtime-artifacts article {
+  border: 1px solid rgba(79, 224, 202, 0.2);
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: rgba(79, 224, 202, 0.06);
+}
+
+.runtime-artifacts strong {
+  display: block;
+  margin-top: 4px;
+  color: var(--teal);
+  font-size: 12px;
 }
 
 .node-detail {
@@ -817,26 +784,6 @@ button {
   display: none;
 }
 
-@keyframes bob {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-8px);
-  }
-}
-
-@keyframes floatIn {
-  0%, 100% {
-    opacity: 0.62;
-    transform: translateY(0);
-  }
-  50% {
-    opacity: 1;
-    transform: translateY(-7px);
-  }
-}
-
 @media (max-width: 980px) {
   body {
     min-width: 320px;
@@ -878,7 +825,7 @@ button {
     font-size: 34px;
   }
 
-  .robot-scene {
+  .runtime-panel {
     min-height: 250px;
   }
 

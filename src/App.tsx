@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import './styles.css';
 
 type NodeStatus = 'done' | 'running' | 'waiting' | 'review' | 'branched';
-type DemoStep = 'observe' | 'interrupt' | 'branch' | 'handoff';
+type RuntimeStep = 'observe' | 'interrupt' | 'branch' | 'handoff';
 type HandoffAction = 'script' | 'pitch' | null;
 
 interface WorkflowNode {
@@ -18,7 +18,7 @@ interface WorkflowNode {
 }
 
 interface Cue {
-  step: DemoStep;
+  step: RuntimeStep;
   title: string;
   body: string;
 }
@@ -33,10 +33,10 @@ const baseNodes: WorkflowNode[] = [
     kicker: '需求解析',
     status: 'done',
     minutes: '00:18',
-    detail: '确认用户想要一个能视频演示的轻量 Demo，而不是完整产品重构。',
+    detail: '确认用户提交的是一个需要持续产出的复杂任务，而不是一次性问答。',
     output: '已识别关键诉求：降低等待焦虑、让用户看到 AI 正在理解目标、允许中途介入。',
-    expected: ['任务边界', '演示主线', '用户心理状态'],
-    risk: '如果范围继续膨胀，会拖慢演示交付。'
+    expected: ['任务边界', '执行策略', '用户心理状态'],
+    risk: '如果任务边界不清晰，后续节点容易生成无效产物。'
   },
   {
     id: 'plan',
@@ -56,7 +56,7 @@ const baseNodes: WorkflowNode[] = [
     status: 'running',
     minutes: '01:36',
     detail: '在主任务继续执行时，右侧主动开一个分支对话询问用户偏好。',
-    output: '正在形成 Demo 结构：顶部进度、中央舞台、右侧分支聊天、底部成果预览。',
+    output: '正在形成任务方案：顶部进度、当前节点、右侧分支聊天、底部成果预览保持同步。',
     expected: ['主方案草稿', '已有成果', '下一步建议'],
     risk: '用户不知道能不能打断，所以需要把“可采纳修改”做成明显动作。'
   },
@@ -78,8 +78,8 @@ const baseNodes: WorkflowNode[] = [
     status: 'waiting',
     minutes: '03:00',
     detail: '任务完成后，AI 主动总结用户可能的下一步，并给出可一键开启的新会话。',
-    output: '将输出视频演示脚本、功能亮点、下一步可扩展方向。',
-    expected: ['演示话术', '下一步任务', '可交付清单'],
+    output: '将输出阶段摘要、关键决策、下一步可执行任务。',
+    expected: ['阶段摘要', '下一步任务', '可交付清单'],
     risk: '完成页不能像日志，要像一个可以接着工作的工作台。'
   }
 ];
@@ -87,7 +87,7 @@ const baseNodes: WorkflowNode[] = [
 const sideMessages = [
   {
     speaker: 'AI',
-    text: '我先按“视频演示优先”处理：完整能力会被压缩成一条 3 分钟内能看懂的路径。'
+    text: '我会先把长任务拆成可确认的节点，主任务继续运行，过程中可以随时补充偏好。'
   },
   {
     speaker: 'AI',
@@ -95,7 +95,7 @@ const sideMessages = [
   },
   {
     speaker: 'User',
-    text: '节点不要太多，重点演示我能插话、能修改、能开一个新分支。'
+    text: '节点不要太多，重点是我能插话、能修改、能开一个新分支。'
   },
   {
     speaker: 'AI',
@@ -103,30 +103,30 @@ const sideMessages = [
   }
 ];
 
-const demoCues: Record<DemoStep, Cue> = {
+const runtimeCues: Record<RuntimeStep, Cue> = {
   observe: {
     step: 'observe',
-    title: '01 观察等待',
+    title: '01 运行可见',
     body: '先展示 AI 不是静默加载，而是在持续解释当前节点、已有成果和下一步产物。'
   },
   interrupt: {
     step: 'interrupt',
-    title: '02 中途插话',
+    title: '02 用户介入',
     body: '用户偏好已经并入当前方案，主任务继续运行，不需要等最终回答才反馈。'
   },
   branch: {
     step: 'branch',
-    title: '03 保留并分支',
+    title: '03 保留分支',
     body: '当前版本 V1 被保留，新意见进入 V2 分支，用户不用担心打断会浪费已有结果。'
   },
   handoff: {
     step: 'handoff',
-    title: '04 完成后续',
-    body: '任务收束后直接给出演示脚本、Pitch 版和下一步会话入口。'
+    title: '04 交付后续',
+    body: '任务收束后直接给出阶段摘要、下一步任务和可继续协作的会话入口。'
   }
 };
 
-const cueOrder: DemoStep[] = ['observe', 'interrupt', 'branch', 'handoff'];
+const cueOrder: RuntimeStep[] = ['observe', 'interrupt', 'branch', 'handoff'];
 
 function App() {
   const [selectedId, setSelectedId] = useState(initialSelectedId);
@@ -134,7 +134,7 @@ function App() {
   const [branchOpened, setBranchOpened] = useState(false);
   const [noteAccepted, setNoteAccepted] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
-  const [cueStep, setCueStep] = useState<DemoStep>('observe');
+  const [cueStep, setCueStep] = useState<RuntimeStep>('observe');
   const [handoffAction, setHandoffAction] = useState<HandoffAction>(null);
 
   const nodes = useMemo<WorkflowNode[]>(
@@ -170,11 +170,11 @@ function App() {
   const selectedNode = nodes.find((node) => node.id === selectedId) ?? nodes[stage] ?? nodes[0];
   const completed = nodes.filter((node) => node.status === 'done').length;
   const progress = Math.min(((stage + 0.45) / nodes.length) * 100, 100);
-  const activeCue = demoCues[cueStep];
+  const activeCue = runtimeCues[cueStep];
   const cueNumber = cueOrder.indexOf(cueStep) + 1;
   const isComplete = stage >= nodes.length - 1;
 
-  const resetDemo = () => {
+  const resetTask = () => {
     setStage(initialStage);
     setSelectedId(initialSelectedId);
     setBranchOpened(false);
@@ -223,7 +223,7 @@ function App() {
         <header className="topbar">
           <div className="title-pack">
             <h1>Workflow Workbench</h1>
-            <span>AI-LONG-RUN / DEMO</span>
+            <span>AI-LONG-RUN / TASK-A94B</span>
           </div>
           <div className="progress-line" aria-label="节点进度">
             <i style={{ width: `${progress}%` }} />
@@ -240,7 +240,7 @@ function App() {
           <div className="top-actions">
             <button className="icon-button" title="搜索" aria-label="搜索">⌕</button>
             <button className="icon-button" title="通知" aria-label="通知">◌</button>
-            <button className="execute-button" onClick={advance}>▶ 推进演示</button>
+            <button className="execute-button" onClick={advance}>▶ 继续执行</button>
           </div>
         </header>
 
@@ -248,7 +248,7 @@ function App() {
           <section className="main-panel">
             <div className="status-header">
               <div>
-                <span className="eyebrow">RUNNING TASK</span>
+                <span className="eyebrow">ACTIVE TASK</span>
                 <h2>{selectedNode.title}</h2>
                 <strong className="value-anchor">把静默等待变成可观察、可介入、可分支的 AI 工作过程</strong>
                 <p>{selectedNode.detail}</p>
@@ -259,36 +259,60 @@ function App() {
               </div>
             </div>
 
-            <section className={`director-cue director-cue-${activeCue.step}`} aria-label="演示步骤提示">
+            <section className={`director-cue director-cue-${activeCue.step}`} aria-label="运行阶段提示">
               <span>{activeCue.title}</span>
               <p>{activeCue.body}</p>
               <b>{cueNumber}/4</b>
             </section>
 
             <div className="scene-grid">
-              <section className="robot-scene" aria-label="二维运行态">
-                <div className="blackboard">
-                  <span>goal</span>
-                  <strong>减少等待焦虑</strong>
-                  <em>节点可见 / 可插话 / 可分支</em>
+              <section className="runtime-panel" aria-label="运行事件流">
+                <header>
+                  <div>
+                    <span>runtime trace</span>
+                    <strong>当前执行链路</strong>
+                  </div>
+                  <em>{noteAccepted ? '用户偏好已写入' : '等待用户确认策略'}</em>
+                </header>
+
+                <div className="runtime-timeline">
+                  <article className="done">
+                    <b>10:42:18</b>
+                    <span>解析任务边界，生成 5 个可观察节点。</span>
+                  </article>
+                  <article className="done">
+                    <b>10:43:02</b>
+                    <span>检索上下文，提取用户目标、约束和风险提示。</span>
+                  </article>
+                  <article className="running">
+                    <b>10:44:11</b>
+                    <span>{noteAccepted ? '已合并用户偏好，继续生成主方案草稿。' : '正在生成主方案草稿，等待确认是否跳过二次阻塞。'}</span>
+                  </article>
+                  {branchOpened && (
+                    <article className="branch">
+                      <b>10:44:36</b>
+                      <span>保留 V1，创建 V2 分支以验证新的确认节奏。</span>
+                    </article>
+                  )}
                 </div>
-                <div className="agent agent-main">
-                  <i />
-                  <b />
+
+                <div className="runtime-artifacts">
+                  <article>
+                    <span>artifact</span>
+                    <strong>方案草稿.md</strong>
+                  </article>
+                  <article>
+                    <span>checkpoint</span>
+                    <strong>{branchOpened ? 'V1 / V2 可比较' : '等待确认'}</strong>
+                  </article>
                 </div>
-                <div className="agent agent-small one"><i /><b /></div>
-                <div className="agent agent-small two"><i /><b /></div>
-                <div className="thought one">正在权衡用户打断成本...</div>
-                <div className="thought two">{noteAccepted ? '偏好已并入当前方案' : '已生成可确认节点'}</div>
-                <div className="thought three">右侧分支继续收集偏好</div>
-                {branchOpened && <div className="second-floor">V2 分支任务已开启</div>}
               </section>
 
               <section className="node-detail">
                 <div className="detail-toolbar">
                   <span>{selectedNode.kicker}</span>
                   <button onClick={() => setFullscreen((value) => !value)}>
-                    {fullscreen ? '退出半屏' : '半屏演示'}
+                    {fullscreen ? '退出聚焦' : '聚焦视图'}
                   </button>
                 </div>
                 <h3>已有成果</h3>
@@ -316,7 +340,7 @@ function App() {
                 <strong>{branchOpened ? 'V2 运行' : '未开启'}</strong>
               </article>
               <article>
-                <span>演示状态</span>
+                <span>任务状态</span>
                 <strong>{isComplete ? '可交付' : '进行中'}</strong>
               </article>
             </section>
@@ -325,7 +349,7 @@ function App() {
           <aside className="node-list" aria-label="实时节点图">
             <header>
               <span>实时节点图</span>
-              <button onClick={resetDemo}>重置</button>
+              <button onClick={resetTask}>重置任务</button>
             </header>
             {nodes.map((node, index) => (
               <button
@@ -384,21 +408,21 @@ function App() {
                 className={handoffAction === 'script' ? 'selected' : ''}
                 onClick={() => setHandoffAction('script')}
               >
-                生成 3 分钟演示脚本
+                生成阶段摘要
               </button>
               <button
                 className={handoffAction === 'pitch' ? 'selected' : ''}
                 onClick={() => setHandoffAction('pitch')}
               >
-                开新会话做 Pitch 版
+                开新会话继续
               </button>
               {handoffAction && (
                 <article className="handoff-confirmation" aria-live="polite">
-                  <strong>{handoffAction === 'script' ? '脚本已准备' : 'Pitch 会话已排队'}</strong>
+                  <strong>{handoffAction === 'script' ? '阶段摘要已准备' : '后续会话已排队'}</strong>
                   <p>
                     {handoffAction === 'script'
-                      ? '已把节点图、用户插话、分支选择和完成态整理成 3 分钟录屏话术。'
-                      : '已保留本次运行上下文，下一轮会直接进入面向评审的 Pitch 版本。'}
+                      ? '已把节点图、用户插话、分支选择和完成态整理成可交付摘要。'
+                      : '已保留本次运行上下文，下一轮会直接接续当前任务。'}
                   </p>
                 </article>
               )}
