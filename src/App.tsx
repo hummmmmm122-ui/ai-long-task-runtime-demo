@@ -1,9 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type FormEvent } from 'react';
 import './styles.css';
 
 type NodeStatus = 'done' | 'running' | 'waiting' | 'review' | 'branched';
 type RuntimeStep = 'observe' | 'interrupt' | 'branch' | 'handoff';
-type HandoffAction = 'script' | 'pitch' | null;
+type HandoffAction = 'summary' | 'continue' | null;
+type MessageSpeaker = 'AI' | 'User';
+type RuntimeEventState = 'done' | 'running' | 'branch';
 
 interface WorkflowNode {
   id: string;
@@ -23,8 +25,24 @@ interface Cue {
   body: string;
 }
 
+interface ChatMessage {
+  speaker: MessageSpeaker;
+  text: string;
+}
+
+interface RuntimeEvent {
+  id: string;
+  time: string;
+  state: RuntimeEventState;
+  title: string;
+  body: string;
+  detail: string;
+  evidence: string;
+}
+
 const initialStage = 2;
 const initialSelectedId = 'draft';
+const initialEventId = 'draft';
 
 const baseNodes: WorkflowNode[] = [
   {
@@ -84,7 +102,7 @@ const baseNodes: WorkflowNode[] = [
   }
 ];
 
-const sideMessages = [
+const sideMessages: ChatMessage[] = [
   {
     speaker: 'AI',
     text: '我会先把长任务拆成可确认的节点，主任务继续运行，过程中可以随时补充偏好。'
@@ -136,6 +154,9 @@ function App() {
   const [fullscreen, setFullscreen] = useState(false);
   const [cueStep, setCueStep] = useState<RuntimeStep>('observe');
   const [handoffAction, setHandoffAction] = useState<HandoffAction>(null);
+  const [selectedEventId, setSelectedEventId] = useState(initialEventId);
+  const [interventionText, setInterventionText] = useState('');
+  const [extraMessages, setExtraMessages] = useState<ChatMessage[]>([]);
 
   const nodes = useMemo<WorkflowNode[]>(
     () =>
@@ -173,6 +194,52 @@ function App() {
   const activeCue = runtimeCues[cueStep];
   const cueNumber = cueOrder.indexOf(cueStep) + 1;
   const isComplete = stage >= nodes.length - 1;
+  const visibleMessages = [...sideMessages, ...extraMessages];
+  const runtimeEvents: RuntimeEvent[] = [
+    {
+      id: 'intent',
+      time: '10:42:18',
+      state: 'done',
+      title: '解析任务边界',
+      body: '生成 5 个可观察节点。',
+      detail: '系统把用户的一次性复杂请求拆成可确认的节点，并为每个节点记录状态、预计产物和风险。',
+      evidence: '已生成节点：理解目标、生成节点图、生成方案、采纳修改、交付建议。'
+    },
+    {
+      id: 'context',
+      time: '10:43:02',
+      state: 'done',
+      title: '检索上下文',
+      body: '提取用户目标、约束和风险提示。',
+      detail: '上下文被压缩成任务边界、用户心理状态和可介入时机，后续节点会引用这些约束。',
+      evidence: '风险提示已写入当前节点，右侧聊天已主动询问确认策略。'
+    },
+    {
+      id: 'draft',
+      time: '10:44:11',
+      state: 'running',
+      title: '生成主方案草稿',
+      body: noteAccepted ? '已合并用户偏好，继续生成主方案草稿。' : '等待确认是否跳过二次阻塞。',
+      detail: noteAccepted
+        ? '用户偏好已并入当前节点，主任务不会暂停，只会把确认策略写入后续节点。'
+        : '当前节点需要判断是否继续阻塞用户确认，避免用户在等待中失去控制感。',
+      evidence: noteAccepted ? '用户介入状态：已采纳。' : '用户介入状态：等待确认。'
+    }
+  ];
+
+  if (branchOpened) {
+    runtimeEvents.push({
+      id: 'branch',
+      time: '10:44:36',
+      state: 'branch',
+      title: '创建 V2 分支',
+      body: '保留 V1，验证新的确认节奏。',
+      detail: '系统没有覆盖已有方案，而是把用户的新意见放入 V2 分支，允许之后比较两个版本。',
+      evidence: '分支任务状态：V2 运行，checkpoint 已切换为 V1 / V2 可比较。'
+    });
+  }
+
+  const selectedEvent = runtimeEvents.find((event) => event.id === selectedEventId) ?? runtimeEvents[0];
 
   const resetTask = () => {
     setStage(initialStage);
@@ -182,18 +249,23 @@ function App() {
     setFullscreen(false);
     setCueStep('observe');
     setHandoffAction(null);
+    setSelectedEventId(initialEventId);
+    setInterventionText('');
+    setExtraMessages([]);
   };
 
   const acceptNote = () => {
     setNoteAccepted(true);
     setCueStep('interrupt');
     setSelectedId('draft');
+    setSelectedEventId('draft');
   };
 
   const openBranch = () => {
     setBranchOpened(true);
     setCueStep('branch');
     setSelectedId('branch');
+    setSelectedEventId('branch');
   };
 
   const advance = () => {
@@ -206,6 +278,23 @@ function App() {
       }
       return next;
     });
+  };
+
+  const submitIntervention = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const trimmed = interventionText.trim();
+
+    if (!trimmed) {
+      return;
+    }
+
+    setExtraMessages((messages) => [
+      ...messages,
+      { speaker: 'User', text: trimmed },
+      { speaker: 'AI', text: '收到，我会把这条介入意见挂到当前节点，不暂停主任务。你可以选择采纳或开分支。' }
+    ]);
+    setInterventionText('');
+    setCueStep('interrupt');
   };
 
   return (
@@ -276,25 +365,25 @@ function App() {
                 </header>
 
                 <div className="runtime-timeline">
-                  <article className="done">
-                    <b>10:42:18</b>
-                    <span>解析任务边界，生成 5 个可观察节点。</span>
-                  </article>
-                  <article className="done">
-                    <b>10:43:02</b>
-                    <span>检索上下文，提取用户目标、约束和风险提示。</span>
-                  </article>
-                  <article className="running">
-                    <b>10:44:11</b>
-                    <span>{noteAccepted ? '已合并用户偏好，继续生成主方案草稿。' : '正在生成主方案草稿，等待确认是否跳过二次阻塞。'}</span>
-                  </article>
-                  {branchOpened && (
-                    <article className="branch">
-                      <b>10:44:36</b>
-                      <span>保留 V1，创建 V2 分支以验证新的确认节奏。</span>
-                    </article>
-                  )}
+                  {runtimeEvents.map((event) => (
+                    <button
+                      key={event.id}
+                      className={`${event.state} ${event.id === selectedEvent.id ? 'selected' : ''}`}
+                      onClick={() => setSelectedEventId(event.id)}
+                    >
+                      <b>{event.time}</b>
+                      <span>
+                        <strong>{event.title}</strong>
+                        <em>{event.body}</em>
+                      </span>
+                    </button>
+                  ))}
                 </div>
+
+                <article className="event-inspector">
+                  <span>{selectedEvent.evidence}</span>
+                  <p>{selectedEvent.detail}</p>
+                </article>
 
                 <div className="runtime-artifacts">
                   <article>
@@ -323,6 +412,21 @@ function App() {
                 </div>
                 <h3>风险提示</h3>
                 <p className="risk-copy">{selectedNode.risk}</p>
+                {branchOpened && (
+                  <section className="version-compare" aria-label="分支版本对比">
+                    <h3>V1 / V2 对比</h3>
+                    <div>
+                      <article>
+                        <span>V1 当前版本</span>
+                        <p>保留原确认节奏：第二节点需要用户再次确认后继续。</p>
+                      </article>
+                      <article>
+                        <span>V2 新分支</span>
+                        <p>采用用户偏好：已确认节点自动继续，稍后允许回看。</p>
+                      </article>
+                    </div>
+                  </section>
+                )}
               </section>
             </div>
 
@@ -375,7 +479,7 @@ function App() {
               <i />
             </header>
             <div className="message-list">
-              {sideMessages.map((message, index) => (
+              {visibleMessages.map((message, index) => (
                 <article className={`message ${message.speaker === 'User' ? 'user' : 'ai'}`} key={`${message.speaker}-${index}`}>
                   <span>{message.speaker}</span>
                   <p>{message.text}</p>
@@ -402,25 +506,36 @@ function App() {
                 <button onClick={openBranch}>保留并开分支</button>
               </div>
             </section>
+            <form className="intervention-form" onSubmit={submitIntervention}>
+              <label htmlFor="intervention">临时介入</label>
+              <textarea
+                id="intervention"
+                value={interventionText}
+                onChange={(event) => setInterventionText(event.target.value)}
+                placeholder="补充一个约束，或要求从当前节点开分支..."
+                rows={3}
+              />
+              <button type="submit">发送到当前节点</button>
+            </form>
             <section className="next-actions">
               <span>完成后的下一步</span>
               <button
-                className={handoffAction === 'script' ? 'selected' : ''}
-                onClick={() => setHandoffAction('script')}
+                className={handoffAction === 'summary' ? 'selected' : ''}
+                onClick={() => setHandoffAction('summary')}
               >
                 生成阶段摘要
               </button>
               <button
-                className={handoffAction === 'pitch' ? 'selected' : ''}
-                onClick={() => setHandoffAction('pitch')}
+                className={handoffAction === 'continue' ? 'selected' : ''}
+                onClick={() => setHandoffAction('continue')}
               >
                 开新会话继续
               </button>
               {handoffAction && (
                 <article className="handoff-confirmation" aria-live="polite">
-                  <strong>{handoffAction === 'script' ? '阶段摘要已准备' : '后续会话已排队'}</strong>
+                  <strong>{handoffAction === 'summary' ? '阶段摘要已准备' : '后续会话已排队'}</strong>
                   <p>
-                    {handoffAction === 'script'
+                    {handoffAction === 'summary'
                       ? '已把节点图、用户插话、分支选择和完成态整理成可交付摘要。'
                       : '已保留本次运行上下文，下一轮会直接接续当前任务。'}
                   </p>

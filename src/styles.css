@@ -418,14 +418,22 @@ button {
   gap: 7px;
 }
 
-.runtime-timeline article {
+.runtime-timeline button {
   display: grid;
   grid-template-columns: 66px minmax(0, 1fr);
   gap: 10px;
+  width: 100%;
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 8px 9px;
   background: rgba(32, 38, 31, 0.75);
+  text-align: left;
+}
+
+.runtime-timeline button:hover,
+.runtime-timeline button.selected {
+  border-color: rgba(79, 224, 202, 0.42);
+  background: rgba(79, 224, 202, 0.08);
 }
 
 .runtime-timeline b {
@@ -434,10 +442,22 @@ button {
   font-size: 11px;
 }
 
-.runtime-timeline span {
+.runtime-timeline span,
+.runtime-timeline em {
   color: var(--muted);
   font-size: 12px;
   line-height: 1.45;
+}
+
+.runtime-timeline strong,
+.runtime-timeline em {
+  display: block;
+  font-style: normal;
+}
+
+.runtime-timeline strong {
+  color: var(--text);
+  font-size: 12px;
 }
 
 .runtime-timeline .done b {
@@ -460,6 +480,28 @@ button {
 
 .runtime-timeline .branch b {
   color: var(--green);
+}
+
+.event-inspector {
+  margin-top: 9px;
+  border: 1px solid rgba(237, 243, 236, 0.12);
+  border-radius: 8px;
+  padding: 9px 10px;
+  background: rgba(237, 243, 236, 0.04);
+}
+
+.event-inspector span {
+  display: block;
+  color: var(--teal);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.event-inspector p {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 .runtime-artifacts {
@@ -529,6 +571,35 @@ button {
   color: var(--muted);
   font-size: 13px;
   line-height: 1.55;
+}
+
+.version-compare {
+  margin-top: 14px;
+}
+
+.version-compare > div {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.version-compare article {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+  background: rgba(149, 210, 123, 0.07);
+}
+
+.version-compare span {
+  display: block;
+  color: var(--green);
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.version-compare p {
+  margin-top: 6px;
+  font-size: 12px;
 }
 
 .risk-copy {
@@ -721,6 +792,7 @@ button {
 }
 
 .branch-card,
+.intervention-form,
 .next-actions {
   margin-top: 16px;
   border: 1px solid var(--line);
@@ -739,6 +811,48 @@ button {
 .branch-actions button:first-child {
   color: var(--ink);
   background: var(--teal);
+}
+
+.intervention-form {
+  display: grid;
+  gap: 9px;
+}
+
+.intervention-form label {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.intervention-form textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 72px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+  color: var(--text);
+  background: var(--bg);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.intervention-form textarea:focus {
+  outline: 1px solid rgba(79, 224, 202, 0.46);
+  border-color: rgba(79, 224, 202, 0.46);
+}
+
+.intervention-form button {
+  min-height: 32px;
+  border: 1px solid rgba(79, 224, 202, 0.3);
+  border-radius: 7px;
+  color: var(--ink);
+  background: var(--teal);
+  font-size: 12px;
+  font-weight: 900;
 }
 
 .next-actions {
