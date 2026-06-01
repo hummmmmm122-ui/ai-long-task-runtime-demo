@@ -221,6 +221,12 @@ function App() {
     }
   };
   const currentArtifact = artifacts[selectedArtifact];
+  const handoffSummary = [
+    `当前节点决策：${decisionLabel[nodeDecision]}`,
+    `用户介入：${extraMessages.some((message) => message.speaker === 'User') ? '已收到临时约束' : '暂无新增约束'}`,
+    `分支状态：${branchOpened ? 'V2 分支运行中，可与 V1 对比' : '尚未开启分支'}`,
+    `下一步：${isComplete ? '可交付阶段摘要或开启继续会话' : '继续执行后续节点'}`
+  ];
   const runtimeEvents: RuntimeEvent[] = [
     {
       id: 'intent',
@@ -601,6 +607,11 @@ function App() {
                       ? '已把节点图、用户插话、分支选择和完成态整理成可交付摘要。'
                       : '已保留本次运行上下文，下一轮会直接接续当前任务。'}
                   </p>
+                  {handoffAction === 'summary' && (
+                    <ul>
+                      {handoffSummary.map((item) => <li key={item}>{item}</li>)}
+                    </ul>
+                  )}
                 </article>
               )}
             </section>

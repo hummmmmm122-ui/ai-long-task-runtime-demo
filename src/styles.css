@@ -985,6 +985,22 @@ button {
   line-height: 1.5;
 }
 
+.handoff-confirmation ul {
+  display: grid;
+  gap: 5px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.handoff-confirmation li {
+  border-left: 2px solid rgba(149, 210, 123, 0.42);
+  padding-left: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
 .workbench.is-focus .stage {
   grid-template-columns: minmax(0, 1fr) 230px;
 }
