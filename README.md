@@ -97,6 +97,7 @@ PRD 里最关键的痛点不是“AI 慢”，而是“AI 慢的时候用户失�
 - `src/App.tsx`：任务 runtime 状态、节点数据和页面结构
 - `src/runtimeModel.ts`：节点状态、事件流、artifact 和阶段摘要的核心规则
 - `src/runtimeModel.test.ts`：核心 runtime 规则测试
+- `src/App.test.tsx`：页面级关键交互测试
 - `src/styles.css`：工作台视觉、响应式布局和运行态动画
 - `src/main.tsx`：React 入口
 - `docs/final-delivery.md`：最终交付说明
