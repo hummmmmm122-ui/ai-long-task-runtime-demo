@@ -159,6 +159,11 @@ describe('App runtime interactions', () => {
     clickButton('引用缺口清单.csv');
     expect(container.textContent).toContain('等待补充');
     expect(container.textContent).toContain('来自队列中等待介入的任务');
+    expect(container.textContent).toContain('在队列中查看来源任务');
+    clickButton('在队列中查看来源任务');
+    expect(container.textContent).toContain('运行队列');
+    expect(container.textContent).toContain('客服知识库重组');
+    expect(container.textContent).toContain('缺少产品边界说明');
   });
 
   it('applies a template and updates runtime settings', () => {

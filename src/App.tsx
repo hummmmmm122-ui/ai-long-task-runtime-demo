@@ -60,6 +60,7 @@ function App() {
   const [appliedTemplate, setAppliedTemplate] = useState('长文档分析任务');
   const [topPanel, setTopPanel] = useState<TopPanel>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedQueueId, setSelectedQueueId] = useState('TASK-A94B');
   const [runtimeConfig, setRuntimeConfig] = useState<RuntimeConfig>({
     rhythm: 'balanced',
     userInterrupt: true,
@@ -315,6 +316,8 @@ function App() {
             progress={progress}
             nodeDecision={nodeDecision}
             branchOpened={branchOpened}
+            selectedQueueId={selectedQueueId}
+            setSelectedQueueId={setSelectedQueueId}
             onOpenTask={() => setWorkspaceView('task')}
           />
         ) : workspaceView === 'templates' ? (
@@ -324,7 +327,14 @@ function App() {
             onOpenTask={() => setWorkspaceView('task')}
           />
         ) : workspaceView === 'resources' ? (
-          <ResourceView branchOpened={branchOpened} onOpenTask={() => setWorkspaceView('task')} />
+          <ResourceView
+            branchOpened={branchOpened}
+            onOpenQueueTask={(taskId) => {
+              setSelectedQueueId(taskId);
+              setWorkspaceView('queue');
+            }}
+            onOpenTask={() => setWorkspaceView('task')}
+          />
         ) : workspaceView === 'settings' ? (
           <SettingsView
             config={runtimeConfig}
@@ -609,12 +619,16 @@ function QueueView({
   progress,
   nodeDecision,
   branchOpened,
+  selectedQueueId,
+  setSelectedQueueId,
   onOpenTask
 }: {
   currentNodeTitle: string;
   progress: number;
   nodeDecision: NodeDecision;
   branchOpened: boolean;
+  selectedQueueId: string;
+  setSelectedQueueId: (taskId: string) => void;
   onOpenTask: () => void;
 }) {
   const queueItems: QueueItem[] = [
@@ -656,7 +670,6 @@ function QueueView({
     }
   ];
   const [deferredTaskIds, setDeferredTaskIds] = useState<string[]>([]);
-  const [selectedQueueId, setSelectedQueueId] = useState(queueItems[0].id);
   const displayQueueItems = queueItems.map((item) => {
     if (item.id === 'TASK-A94B' || !deferredTaskIds.includes(item.id)) {
       return item;
@@ -1010,7 +1023,15 @@ function SettingsView({
   );
 }
 
-function ResourceView({ branchOpened, onOpenTask }: { branchOpened: boolean; onOpenTask: () => void }) {
+function ResourceView({
+  branchOpened,
+  onOpenQueueTask,
+  onOpenTask
+}: {
+  branchOpened: boolean;
+  onOpenQueueTask: (taskId: string) => void;
+  onOpenTask: () => void;
+}) {
   const resources = [
     {
       name: '方案草稿.md',
@@ -1043,6 +1064,7 @@ function ResourceView({ branchOpened, onOpenTask }: { branchOpened: boolean; onO
   ];
   const [selectedResourceName, setSelectedResourceName] = useState(resources[0].name);
   const selectedResource = resources.find((resource) => resource.name === selectedResourceName) ?? resources[0];
+  const isCurrentTaskResource = selectedResource.owner === 'TASK-A94B';
 
   return (
     <section className="library-workspace" aria-label="资源库">
@@ -1085,10 +1107,15 @@ function ResourceView({ branchOpened, onOpenTask }: { branchOpened: boolean; onO
             </div>
             <div>
               <dt>下一步</dt>
-              <dd>{selectedResource.owner === 'TASK-A94B' ? '回到运行台继续确认节点' : '等待对应队列任务恢复'}</dd>
+              <dd>{isCurrentTaskResource ? '回到运行台继续确认节点' : '跳转到队列中的来源任务'}</dd>
             </div>
           </dl>
-          <button type="button" onClick={onOpenTask}>在运行台查看</button>
+          <button
+            type="button"
+            onClick={() => (isCurrentTaskResource ? onOpenTask() : onOpenQueueTask(selectedResource.owner))}
+          >
+            {isCurrentTaskResource ? '在运行台查看' : '在队列中查看来源任务'}
+          </button>
         </aside>
       </section>
     </section>
