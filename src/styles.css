@@ -1754,58 +1754,6 @@ button {
   font-weight: 800;
 }
 
-.artifact-strip {
-  position: sticky;
-  bottom: 0;
-  z-index: 3;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1px;
-  margin-top: 10px;
-  overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--line);
-  box-shadow: 0 -16px 24px rgba(7, 17, 15, 0.72);
-}
-
-.artifact-strip article {
-  display: grid;
-  gap: 5px;
-  padding: 10px 12px;
-  background: var(--panel);
-}
-
-.artifact-strip span {
-  color: var(--muted);
-  font-size: 12px;
-}
-
-.artifact-strip strong {
-  color: var(--text);
-  font-size: 16px;
-}
-
-.artifact-strip article.is-hot {
-  background:
-    linear-gradient(135deg, rgba(79, 224, 202, 0.18), rgba(23, 27, 24, 0.96));
-  box-shadow: inset 0 0 0 1px rgba(79, 224, 202, 0.28);
-}
-
-.artifact-strip article.is-hot strong {
-  color: var(--teal);
-}
-
-.artifact-strip article.is-branch {
-  background:
-    linear-gradient(135deg, rgba(149, 210, 123, 0.18), rgba(23, 27, 24, 0.96));
-  box-shadow: inset 0 0 0 1px rgba(149, 210, 123, 0.3);
-}
-
-.artifact-strip article.is-branch strong {
-  color: var(--green);
-}
-
 .side-workspace {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
@@ -2015,6 +1963,27 @@ button {
 .branch-card.passive-card {
   opacity: 0.88;
   background: rgba(23, 27, 24, 0.82);
+}
+
+.revision-inline {
+  margin-top: 12px;
+  border-top: 1px solid rgba(237, 243, 236, 0.08);
+  padding-top: 10px;
+}
+
+.revision-inline span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.revision-inline strong {
+  display: block;
+  margin-top: 6px;
+  color: var(--text);
+  font-size: 14px;
 }
 
 .quick-prompts {

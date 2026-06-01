@@ -639,24 +639,6 @@ function App() {
               </section>
             </div>
 
-            <section className="artifact-strip" aria-label="产物预览">
-              <article>
-                <span>已完成</span>
-                <strong>{completed}/5</strong>
-              </article>
-              <article className={noteAccepted ? 'is-hot' : ''}>
-                <span>用户介入</span>
-                <strong>{decisionLabel[nodeDecision]}</strong>
-              </article>
-              <article className={branchOpened ? 'is-hot is-branch' : ''}>
-                <span>分支任务</span>
-                <strong>{branchOpened ? 'V2 运行' : '未开启'}</strong>
-              </article>
-              <article>
-                <span>任务状态</span>
-                <strong>{isComplete ? '可交付' : '进行中'}</strong>
-              </article>
-            </section>
           </section>
 
           <aside className="side-workspace" aria-label="节点与分支操作">
@@ -751,19 +733,18 @@ function App() {
                   先只记录为约束
                 </button>
               )}
-            </section>
-            <section className="revision-card" aria-label="已完成节点修改选择">
-              <span>修改已完成节点时</span>
-              <strong>
-                {revisionMode === 'none' && '还没选择处理路径'}
-                {revisionMode === 'redo' && '已选择回退重做'}
-                {revisionMode === 'branch' && '已选择保留当前版并开分支'}
-              </strong>
-              <p>这是 PRD 里最关键的二选一：要么舍弃当前结果回退重做，要么保留 V1 并把新意见放到 V2。</p>
-              <div className="branch-actions">
-                <button type="button" onClick={rewindToPlan}>回退到上一节点重做</button>
-                <button type="button" onClick={openBranch}>保留当前版并开分支</button>
-              </div>
+              <section className="revision-inline" aria-label="已完成节点修改选择">
+                <span>改已完成节点时</span>
+                <strong>
+                  {revisionMode === 'none' && '请选择回退或开分支'}
+                  {revisionMode === 'redo' && '已选择回退重做'}
+                  {revisionMode === 'branch' && '已选择保留当前版并开分支'}
+                </strong>
+                <div className="branch-actions">
+                  <button type="button" onClick={rewindToPlan}>回退到上一节点重做</button>
+                  <button type="button" onClick={openBranch}>保留当前版并开分支</button>
+                </div>
+              </section>
             </section>
             <section className="message-list-wrap">
               <button className="collapse-toggle" type="button" onClick={() => togglePanel('history')}>
