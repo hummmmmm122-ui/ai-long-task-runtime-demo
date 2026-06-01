@@ -226,7 +226,8 @@ button {
   background: var(--line);
 }
 
-.queue-workspace {
+.queue-workspace,
+.library-workspace {
   min-height: 0;
   overflow: auto;
   padding: 28px;
@@ -428,6 +429,156 @@ button {
   background: var(--teal);
   font-size: 13px;
   font-weight: 900;
+}
+
+.template-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.template-card {
+  display: grid;
+  gap: 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 18px;
+  background:
+    linear-gradient(155deg, rgba(79, 224, 202, 0.1), transparent 46%),
+    var(--panel);
+}
+
+.template-card:hover {
+  border-color: rgba(79, 224, 202, 0.42);
+  transform: translateY(-1px);
+}
+
+.template-card > span,
+.resource-detail > span {
+  color: var(--teal);
+  font-family: "Cascadia Mono", Consolas, monospace;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.template-card h3,
+.resource-detail h3 {
+  margin: 0;
+  color: var(--text);
+  font-size: 22px;
+}
+
+.template-card p,
+.resource-detail p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.template-card dl,
+.resource-detail dl {
+  display: grid;
+  gap: 9px;
+  margin: 0;
+}
+
+.template-card dl div,
+.resource-detail dl div {
+  border: 1px solid rgba(237, 243, 236, 0.1);
+  border-radius: 8px;
+  padding: 10px;
+  background: rgba(237, 243, 236, 0.04);
+}
+
+.template-card dt,
+.resource-detail dt {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.template-card dd,
+.resource-detail dd {
+  margin: 5px 0 0;
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.template-card button,
+.resource-detail button {
+  min-height: 34px;
+  border: 1px solid rgba(79, 224, 202, 0.3);
+  border-radius: 8px;
+  color: var(--ink);
+  background: var(--teal);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.resource-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.resource-list {
+  display: grid;
+  gap: 12px;
+}
+
+.resource-list button {
+  display: grid;
+  gap: 7px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 16px;
+  background: var(--panel);
+  text-align: left;
+}
+
+.resource-list button:hover,
+.resource-list button.selected {
+  border-color: rgba(79, 224, 202, 0.44);
+  background: rgba(79, 224, 202, 0.08);
+}
+
+.resource-list span {
+  color: var(--teal);
+  font-family: "Cascadia Mono", Consolas, monospace;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.resource-list strong {
+  color: var(--text);
+  font-size: 18px;
+}
+
+.resource-list em {
+  color: var(--muted);
+  font-size: 12px;
+  font-style: normal;
+}
+
+.resource-detail {
+  align-self: start;
+  position: sticky;
+  top: 18px;
+  display: grid;
+  gap: 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 18px;
+  background:
+    linear-gradient(155deg, rgba(149, 210, 123, 0.1), transparent 42%),
+    var(--panel);
 }
 
 .main-panel,
@@ -1235,6 +1386,8 @@ button {
   .stage,
   .queue-layout,
   .queue-grid,
+  .template-grid,
+  .resource-layout,
   .scene-grid {
     grid-template-columns: 1fr;
   }

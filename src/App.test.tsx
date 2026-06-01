@@ -107,4 +107,23 @@ describe('App runtime interactions', () => {
     expect(container.textContent).toContain('当前执行链路');
     expect(container.textContent).toContain('分支式主动聊天');
   });
+
+  it('opens template and resource workspaces from the rail', () => {
+    renderApp();
+
+    clickButton('▤');
+    expect(container.textContent).toContain('模板库');
+    expect(container.textContent).toContain('长文档分析任务');
+    expect(container.textContent).toContain('节点预设');
+    expect(container.textContent).toContain('套用模板');
+
+    clickButton('◇');
+    expect(container.textContent).toContain('资源库');
+    expect(container.textContent).toContain('方案草稿.md');
+    expect(container.textContent).toContain('引用缺口清单.csv');
+
+    clickButton('引用缺口清单.csv');
+    expect(container.textContent).toContain('等待补充');
+    expect(container.textContent).toContain('来自队列中等待介入的任务');
+  });
 });

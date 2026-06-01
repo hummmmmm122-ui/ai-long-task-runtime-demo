@@ -22,7 +22,7 @@ import {
   type RuntimeStep
 } from './runtimeModel';
 
-type WorkspaceView = 'task' | 'queue';
+type WorkspaceView = 'task' | 'queue' | 'templates' | 'resources';
 
 function App() {
   const [workspaceView, setWorkspaceView] = useState<WorkspaceView>('task');
@@ -136,8 +136,22 @@ function App() {
         >
           ◴
         </button>
-        <button className="rail-item" title="模板" aria-label="模板">▤</button>
-        <button className="rail-item" title="资源" aria-label="资源">◇</button>
+        <button
+          className={`rail-item ${workspaceView === 'templates' ? 'active' : ''}`}
+          title="模板"
+          aria-label="模板"
+          onClick={() => setWorkspaceView('templates')}
+        >
+          ▤
+        </button>
+        <button
+          className={`rail-item ${workspaceView === 'resources' ? 'active' : ''}`}
+          title="资源"
+          aria-label="资源"
+          onClick={() => setWorkspaceView('resources')}
+        >
+          ◇
+        </button>
         <button className="rail-item bottom" title="设置" aria-label="设置">⚙</button>
       </aside>
 
@@ -174,6 +188,10 @@ function App() {
             branchOpened={branchOpened}
             onOpenTask={() => setWorkspaceView('task')}
           />
+        ) : workspaceView === 'templates' ? (
+          <TemplateView onOpenTask={() => setWorkspaceView('task')} />
+        ) : workspaceView === 'resources' ? (
+          <ResourceView branchOpened={branchOpened} onOpenTask={() => setWorkspaceView('task')} />
         ) : (
         <section className="stage">
           <section className="main-panel">
@@ -542,6 +560,158 @@ function QueueView({
           ) : (
             <button type="button">标记稍后处理</button>
           )}
+        </aside>
+      </section>
+    </section>
+  );
+}
+
+function TemplateView({ onOpenTask }: { onOpenTask: () => void }) {
+  const templates = [
+    {
+      id: 'TPL-LONGDOC',
+      title: '长文档分析任务',
+      fit: '适合 PRD、合同、研究报告这类需要多轮阅读和阶段确认的任务。',
+      nodes: '读取资料 / 提取结构 / 生成草稿 / 用户复核 / 交付建议',
+      intervention: '每个关键节点都保留用户插话入口',
+      branch: '复核意见默认进入 V2 分支，不覆盖当前版本'
+    },
+    {
+      id: 'TPL-CREATIVE',
+      title: '多轮方案生成',
+      fit: '适合品牌方案、页面文案、产品命名等需要保留多个方向的任务。',
+      nodes: '理解目标 / 生成方向 / 对比方案 / 采纳修改 / 整理输出',
+      intervention: 'AI 主动询问偏好，不强制等待',
+      branch: '被保留的方向会变成可继续运行的分支'
+    },
+    {
+      id: 'TPL-RESEARCH',
+      title: '调研摘要工作流',
+      fit: '适合竞品调研、资料汇总、引用校验和结论提炼。',
+      nodes: '收集来源 / 聚类信息 / 校验引用 / 形成摘要 / 列出缺口',
+      intervention: '缺少来源时进入等待介入状态',
+      branch: '可以把补充资料开启为新的子任务'
+    }
+  ];
+
+  return (
+    <section className="library-workspace" aria-label="模板库">
+      <header className="queue-hero">
+        <div>
+          <span className="eyebrow">TEMPLATE LIBRARY</span>
+          <h2>模板库</h2>
+          <p>把常见的长任务拆成可复用的节点预设，让新任务从一开始就具备可观察、可介入、可分支的运行规则。</p>
+        </div>
+        <button onClick={onOpenTask}>回到当前任务</button>
+      </header>
+
+      <section className="template-grid">
+        {templates.map((template) => (
+          <article className="template-card" key={template.id}>
+            <span>{template.id}</span>
+            <h3>{template.title}</h3>
+            <p>{template.fit}</p>
+            <dl>
+              <div>
+                <dt>节点预设</dt>
+                <dd>{template.nodes}</dd>
+              </div>
+              <div>
+                <dt>介入策略</dt>
+                <dd>{template.intervention}</dd>
+              </div>
+              <div>
+                <dt>分支策略</dt>
+                <dd>{template.branch}</dd>
+              </div>
+            </dl>
+            <button type="button">套用模板</button>
+          </article>
+        ))}
+      </section>
+    </section>
+  );
+}
+
+function ResourceView({ branchOpened, onOpenTask }: { branchOpened: boolean; onOpenTask: () => void }) {
+  const resources = [
+    {
+      name: '方案草稿.md',
+      type: 'artifact',
+      owner: 'TASK-A94B',
+      status: '可继续编辑',
+      detail: '沉淀当前任务的目标理解、节点图和生成方案，是交付前的主文档。'
+    },
+    {
+      name: branchOpened ? 'V1 / V2 checkpoint' : 'checkpoint 待生成',
+      type: 'checkpoint',
+      owner: 'TASK-A94B',
+      status: branchOpened ? '已有分支对比' : '等待用户确认',
+      detail: branchOpened ? '保留原版本和用户修改后的分支，方便继续比较或回滚。' : '当前任务还没有开启分支，确认节点后会生成可追踪检查点。'
+    },
+    {
+      name: '引用缺口清单.csv',
+      type: 'external',
+      owner: 'TASK-B18C',
+      status: '等待补充',
+      detail: '来自队列中等待介入的任务，用于提示用户补齐产品边界和来源。'
+    },
+    {
+      name: '竞品观察草稿.md',
+      type: 'draft',
+      owner: 'TASK-C77D',
+      status: '已暂停',
+      detail: '保留上一次调研的中间结论，后续可以继续接入新的竞品链接。'
+    }
+  ];
+  const [selectedResourceName, setSelectedResourceName] = useState(resources[0].name);
+  const selectedResource = resources.find((resource) => resource.name === selectedResourceName) ?? resources[0];
+
+  return (
+    <section className="library-workspace" aria-label="资源库">
+      <header className="queue-hero">
+        <div>
+          <span className="eyebrow">RESOURCE VAULT</span>
+          <h2>资源库</h2>
+          <p>把长任务运行过程中产生的草稿、检查点、缺口清单统一收纳，避免产物散落在聊天记录里。</p>
+        </div>
+        <button onClick={onOpenTask}>打开当前任务</button>
+      </header>
+
+      <section className="resource-layout">
+        <div className="resource-list">
+          {resources.map((resource) => (
+            <button
+              className={resource.name === selectedResource.name ? 'selected' : ''}
+              key={resource.name}
+              onClick={() => setSelectedResourceName(resource.name)}
+            >
+              <span>{resource.type}</span>
+              <strong>{resource.name}</strong>
+              <em>{resource.owner} · {resource.status}</em>
+            </button>
+          ))}
+        </div>
+
+        <aside className="resource-detail" aria-label="资源详情">
+          <span>{selectedResource.type}</span>
+          <h3>{selectedResource.name}</h3>
+          <p>{selectedResource.detail}</p>
+          <dl>
+            <div>
+              <dt>所属任务</dt>
+              <dd>{selectedResource.owner}</dd>
+            </div>
+            <div>
+              <dt>当前状态</dt>
+              <dd>{selectedResource.status}</dd>
+            </div>
+            <div>
+              <dt>下一步</dt>
+              <dd>{selectedResource.owner === 'TASK-A94B' ? '回到运行台继续确认节点' : '等待对应队列任务恢复'}</dd>
+            </div>
+          </dl>
+          <button type="button" onClick={onOpenTask}>在运行台查看</button>
         </aside>
       </section>
     </section>
